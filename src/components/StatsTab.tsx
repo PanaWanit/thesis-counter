@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import type { Semester, WeeklyStats, SemesterStats, CategoryBreakdown } from '../types';
-import { getWeeklyStats, getSemesterStats, getCategoryBreakdown } from '../db';
+import type { Semester, WeeklyStats, SemesterStats, CategoryBreakdown, Category } from '../types';
+import { getWeeklyStats, getSemesterStats, getCategoryBreakdown, listCategories } from '../db';
+import ExportButton from './ExportButton';
 
 interface Props {
   semester: Semester;
@@ -10,11 +11,13 @@ export default function StatsTab({ semester }: Props) {
   const [weekly, setWeekly] = useState<WeeklyStats | null>(null);
   const [semesterStats, setSemesterStats] = useState<SemesterStats | null>(null);
   const [breakdown, setBreakdown] = useState<CategoryBreakdown[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const refresh = async () => {
     setWeekly(await getWeeklyStats(semester));
     setSemesterStats(await getSemesterStats(semester));
     setBreakdown(await getCategoryBreakdown(semester.id));
+    setCategories(await listCategories());
   };
 
   useEffect(() => { refresh(); }, [semester]);
@@ -22,6 +25,7 @@ export default function StatsTab({ semester }: Props) {
   return (
     <div>
       <h2>Stats</h2>
+      <ExportButton semester={semester} categories={categories} />
       {weekly && (
         <div>
           <h3>This Week</h3>
