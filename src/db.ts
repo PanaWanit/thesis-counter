@@ -37,8 +37,8 @@ export async function listSemesters(): Promise<Semester[]> {
 
 export async function createSemester(input: SemesterInput): Promise<void> {
   await execute(
-    'INSERT INTO semesters (name, start_date, end_date, credits, created_at) VALUES ($1, $2, $3, $4, datetime("now"))',
-    [input.name, input.start_date, input.end_date, input.credits]
+    'INSERT INTO semesters (name, start_date, end_date, credits, created_at) VALUES ($1, $2, $3, $4, $5)',
+    [input.name, input.start_date, input.end_date, input.credits, new Date().toISOString()]
   );
 }
 

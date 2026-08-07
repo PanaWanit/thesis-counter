@@ -1,36 +1,52 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Semester, SemesterInput } from '../types';
 import { listSemesters, createSemester, deleteSemester } from '../db';
 import SemesterForm from './SemesterForm';
 
 interface Props {
   selected: Semester | null;
-  onSelect: (s: Semester) => void;
+  onSelect: (s: Semester | null) => void;
 }
 
 export default function Sidebar({ selected, onSelect }: Props) {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [showForm, setShowForm] = useState(false);
 
-  const refresh = async () => {
-    const data = await listSemesters();
-    setSemesters(data);
-    if (data.length > 0 && !selected) {
-      onSelect(data[0]);
+  const refresh = useCallback(async () => {
+    try {
+      const data = await listSemesters();
+      setSemesters(data);
+      if (data.length > 0 && !selected) {
+        onSelect(data[0]);
+      }
+    } catch (err) {
+      console.error('Failed to refresh semesters:', err);
+    }
+  }, [selected, onSelect]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const handleSave = async (input: SemesterInput) => {
+    try {
+      await createSemester(input);
+      setShowForm(false);
+      await refresh();
+    } catch (err) {
+      console.error('Failed to create semester:', err);
     }
   };
 
-  useEffect(() => { refresh(); }, []);
-
-  const handleSave = async (input: SemesterInput) => {
-    await createSemester(input);
-    setShowForm(false);
-    await refresh();
-  };
-
   const handleDelete = async (id: number) => {
-    await deleteSemester(id);
-    await refresh();
+    try {
+      await deleteSemester(id);
+      if (selected?.id === id) {
+        const remaining = semesters.filter((s) => s.id !== id);
+        onSelect(remaining.length > 0 ? remaining[0] : null);
+      }
+      await refresh();
+    } catch (err) {
+      console.error('Failed to delete semester:', err);
+    }
   };
 
   return (

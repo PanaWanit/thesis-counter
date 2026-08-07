@@ -1,5 +1,20 @@
+function pad(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
+function toLocalIso(d: Date): string {
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  const seconds = pad(d.getSeconds());
+  const ms = String(d.getMilliseconds()).padStart(3, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}Z`;
+}
+
 export function formatDateInput(d: Date): string {
-  return d.toISOString().split('T')[0];
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export function getMonday(date: Date): Date {
@@ -17,7 +32,7 @@ export function mondayWeekBounds(date: Date): { start: string; end: string } {
   sunday.setDate(monday.getDate() + 6);
   sunday.setHours(23, 59, 59, 999);
   return {
-    start: monday.toISOString(),
-    end: sunday.toISOString(),
+    start: toLocalIso(monday),
+    end: toLocalIso(sunday),
   };
 }

@@ -16,7 +16,7 @@ export default function SemesterForm({ semester, onSave, onCancel }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ name, start_date: startDate, end_date: endDate, credits: Number(credits) });
+    onSave({ name, start_date: startDate, end_date: endDate, credits: Math.max(1, Number(credits) || 1) });
   };
 
   return (
@@ -24,7 +24,13 @@ export default function SemesterForm({ semester, onSave, onCancel }: Props) {
       <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
       <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
       <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
-      <input type="number" min={1} value={credits} onChange={(e) => setCredits(Number(e.target.value))} required />
+      <input
+        type="number"
+        min={1}
+        value={credits}
+        onChange={(e) => setCredits(Math.max(1, Number(e.target.value) || 1))}
+        required
+      />
       <button type="submit">Save</button>
       <button type="button" onClick={onCancel}>Cancel</button>
     </form>
