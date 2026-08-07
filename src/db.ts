@@ -1,4 +1,5 @@
 import Database from '@tauri-apps/plugin-sql';
+import { mondayWeekBounds } from './lib/date';
 import type {
   Semester,
   SemesterInput,
@@ -89,6 +90,71 @@ export async function listSessions(semesterId: number): Promise<Session[]> {
 
 export async function deleteSession(id: number): Promise<void> {
   await execute('DELETE FROM sessions WHERE id = $1', [id]);
+}
+
+export async function getWeeklyStats(semester: Semester): Promise<WeeklyStats> {
+  const { start, end } = mondayWeekBounds(new Date());
+  const rows = await select<{ current_week_minutes: number }>(
+    `SELECT COALESCE(SUM(duration_minutes), 0) AS current_week_minutes
+     FROM sessions
+     WHERE semester_id = $1 AND started_at >= $2 AND started_at <= $3`,
+    [semester.id, start, end]
+  );
+  const current = rows[0]?.current_week_minutes ?? 0;
+  const required = semester.credits * 3 * 60;
+  return {
+    required_hours: semester.credits * 3,
+    current_week_minutes: current,
+    current_week_hours: current / 60,
+    progress_percent: required > 0 ? Math.min(100, (current / required) * 100) : 0,
+  };
+}
+
+export async function getSemesterStats(semester: Semester): Promise<SemesterStats> {
+  const totalRows = await select<{ total_minutes: number; session_count: number }>(
+    `SELECT COALESCE(SUM(duration_minutes), 0) AS total_minutes, COUNT(*) AS session_count
+     FROM sessions WHERE semester_id = $1`,
+    [semester.id]
+  );
+  const totalMinutes = totalRows[0]?.total_minutes ?? 0;
+  const totalHours = totalMinutes / 60;
+  const start = new Date(semester.start_date);
+  const end = new Date(semester.end_date);
+  const now = new Date();
+  const elapsedDays = Math.max(1, Math.floor((Math.min(now.getTime(), end.getTime()) - start.getTime()) / 86400000) + 1);
+  const elapsedWeeks = elapsedDays / 7;
+  const daysRemaining = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / 86400000));
+  return {
+    total_minutes: totalMinutes,
+    total_hours: totalHours,
+    session_count: totalRows[0]?.session_count ?? 0,
+    average_hours_per_week: elapsedWeeks > 0 ? totalHours / elapsedWeeks : 0,
+    days_remaining: daysRemaining,
+  };
+}
+
+export async function getCategoryBreakdown(semesterId: number): Promise<CategoryBreakdown[]> {
+  const rows = await select<{
+    category_id: number;
+    name: string;
+    color: string;
+    total_minutes: number;
+  }>(
+    `SELECT c.id AS category_id, c.name, c.color, COALESCE(SUM(s.duration_minutes), 0) AS total_minutes
+     FROM categories c
+     LEFT JOIN sessions s ON s.category_id = c.id AND s.semester_id = $1
+     GROUP BY c.id`,
+    [semesterId]
+  );
+  const total = rows.reduce((sum, r) => sum + r.total_minutes, 0);
+  return rows.map((r) => ({
+    category_id: r.category_id,
+    name: r.name,
+    color: r.color,
+    total_minutes: r.total_minutes,
+    total_hours: r.total_minutes / 60,
+    percent: total > 0 ? Math.round((r.total_minutes / total) * 1000) / 10 : 0,
+  }));
 }
 
 export type {
