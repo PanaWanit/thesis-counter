@@ -22,6 +22,10 @@
       "csp": null
     }
   },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  },
   "plugins": {
     "sql": {
       "preload": ["sqlite:thesis.db"]
