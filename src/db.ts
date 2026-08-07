@@ -59,8 +59,8 @@ export async function listCategories(): Promise<Category[]> {
 
 export async function createCategory(name: string, color: string): Promise<void> {
   await execute(
-    'INSERT INTO categories (name, color, created_at) VALUES ($1, $2, datetime("now"))',
-    [name, color]
+    'INSERT INTO categories (name, color, created_at) VALUES ($1, $2, $3)',
+    [name, color, new Date().toISOString()]
   );
 }
 

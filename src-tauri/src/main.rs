@@ -26,6 +26,12 @@ fn main() {
             sql: "INSERT OR IGNORE INTO categories (name, color, created_at) VALUES\n                ('Reading', '#3b82f6', datetime('now')),\n                ('Writing', '#22c55e', datetime('now')),\n                ('Experiments', '#a855f7', datetime('now')),\n                ('Meeting', '#f59e0b', datetime('now')),\n                ('Other', '#6b7280', datetime('now'));",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 5,
+            description: "convert_category_created_at_to_iso",
+            sql: "UPDATE categories SET created_at = strftime('%Y-%m-%dT%H:%M:%SZ', created_at) WHERE created_at NOT LIKE '%T%';",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import type { Category } from '../types';
 import { listCategories, createCategory, deleteCategory } from '../db';
 
@@ -11,11 +11,21 @@ export default function CategoryManager() {
 
   useEffect(() => { refresh(); }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     await createCategory(name, color);
     setName('');
     await refresh();
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteCategory(id);
+      await refresh();
+    } catch (error) {
+      console.error(error);
+      window.alert('Cannot delete category that is used by sessions.');
+    }
   };
 
   return (
@@ -30,7 +40,7 @@ export default function CategoryManager() {
         {categories.map((c) => (
           <li key={c.id}>
             <span style={{ color: c.color }}>●</span> {c.name}
-            <button onClick={() => deleteCategory(c.id).then(refresh)}>×</button>
+            <button onClick={() => handleDelete(c.id)}>×</button>
           </li>
         ))}
       </ul>
