@@ -66,7 +66,7 @@ src-tauri/
 - Create: `src/vite-env.d.ts`
 
 **Interfaces:**
-- Produces: runnable `npm run tauri dev` with a blank window titled "Thesis Counter".
+- Produces: a Vite + React + TypeScript project that builds cleanly with `npm run build`. `npm run tauri dev` becomes runnable after Task 2 adds the Tauri backend.
 
 - [ ] **Step 1: Create `package.json`**
 
