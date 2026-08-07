@@ -53,6 +53,21 @@ export async function deleteSemester(id: number): Promise<void> {
   await execute('DELETE FROM semesters WHERE id = $1', [id]);
 }
 
+export async function listCategories(): Promise<Category[]> {
+  return select<Category>('SELECT * FROM categories ORDER BY name');
+}
+
+export async function createCategory(name: string, color: string): Promise<void> {
+  await execute(
+    'INSERT INTO categories (name, color, created_at) VALUES ($1, $2, datetime("now"))',
+    [name, color]
+  );
+}
+
+export async function deleteCategory(id: number): Promise<void> {
+  await execute('DELETE FROM categories WHERE id = $1', [id]);
+}
+
 export type {
   Semester,
   SemesterInput,
