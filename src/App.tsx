@@ -1,13 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Semester } from './types';
 import Sidebar from './components/Sidebar';
 import Tabs from './components/Tabs';
 import { AppIcon } from './components/Icons';
+import {
+  applyThemePreference,
+  normalizeThemePreference,
+  THEME_STORAGE_KEY,
+  type ThemeId,
+} from './lib/theme';
 
 function App() {
   const [selected, setSelected] = useState<Semester | null>(null);
   const [createRequest, setCreateRequest] = useState(0);
   const [editRequest, setEditRequest] = useState(0);
+  const [theme, setTheme] = useState<ThemeId>(() =>
+    normalizeThemePreference(window.localStorage.getItem(THEME_STORAGE_KEY))
+  );
+
+  useEffect(() => {
+    applyThemePreference(theme, document.documentElement, window.localStorage);
+  }, [theme]);
 
   return (
     <div className="app-shell">
@@ -17,6 +30,8 @@ function App() {
         onSelect={setSelected}
         createRequest={createRequest}
         editRequest={editRequest}
+        theme={theme}
+        onThemeChange={setTheme}
       />
       <main id="main-content" className="workspace-main" tabIndex={-1}>
         {selected ? (

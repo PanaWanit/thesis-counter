@@ -2,14 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Semester, SemesterInput } from '../types';
 import { listSemesters, createSemester, updateSemester, deleteSemester } from '../db';
 import { persistSemester, shouldHandleSemesterEditRequest } from '../lib/semester';
+import type { ThemeId } from '../lib/theme';
 import SemesterForm from './SemesterForm';
 import { AppIcon } from './Icons';
+import ThemeSelector from './ThemeSelector';
 
 interface Props {
   selected: Semester | null;
   onSelect: (semester: Semester | null) => void;
   createRequest?: number;
   editRequest?: number;
+  theme: ThemeId;
+  onThemeChange: (theme: ThemeId) => void;
 }
 
 export default function Sidebar({
@@ -17,6 +21,8 @@ export default function Sidebar({
   onSelect,
   createRequest = 0,
   editRequest = 0,
+  theme,
+  onThemeChange,
 }: Props) {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -185,6 +191,8 @@ export default function Sidebar({
           <p className="brand-subtitle">Research Studio</p>
         </div>
       </div>
+
+      <ThemeSelector value={theme} onChange={onThemeChange} />
 
       <div className="sidebar-section">
         <div className="sidebar-section-header">
