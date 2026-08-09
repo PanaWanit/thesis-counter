@@ -475,6 +475,14 @@ p {
   gap: 6px;
 }
 
+.semester-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .tab-nav {
   display: flex;
   gap: 6px;
@@ -1333,7 +1341,13 @@ textarea.control {
     align-items: stretch;
   }
 
-  .page-heading-row > .badge {
+  .semester-header-actions {
+    flex-wrap: wrap;
+    align-self: flex-start;
+    justify-content: flex-start;
+  }
+
+  .semester-header-actions > .badge {
     align-self: flex-start;
   }
 

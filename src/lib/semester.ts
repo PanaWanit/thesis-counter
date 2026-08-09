@@ -1,6 +1,34 @@
+import type { SemesterInput } from '../types';
+
 export interface SemesterFieldErrors {
   dates?: string;
   credits?: string;
+}
+
+interface SemesterPersistence {
+  create: (input: SemesterInput) => Promise<void>;
+  update: (id: number, input: SemesterInput) => Promise<void>;
+}
+
+export function shouldHandleSemesterEditRequest(
+  request: number,
+  handledRequest: number,
+  hasSelectedSemester: boolean
+): boolean {
+  return hasSelectedSemester && request > 0 && request !== handledRequest;
+}
+
+export async function persistSemester(
+  semesterId: number | null,
+  input: SemesterInput,
+  persistence: SemesterPersistence
+): Promise<void> {
+  if (semesterId === null) {
+    await persistence.create(input);
+    return;
+  }
+
+  await persistence.update(semesterId, input);
 }
 
 export interface SemesterFormPresentation {

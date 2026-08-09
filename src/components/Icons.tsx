@@ -9,6 +9,7 @@ export type IconName =
   | 'clock'
   | 'close'
   | 'download'
+  | 'edit'
   | 'flask'
   | 'insights'
   | 'play'
@@ -41,6 +42,8 @@ function paths(name: IconName): ReactNode {
       return <><path d="m6 6 12 12" /><path d="m18 6-12 12" /></>;
     case 'download':
       return <><path d="M12 4v11" /><path d="m8 11 4 4 4-4" /><path d="M5 19h14" /></>;
+    case 'edit':
+      return <><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /></>;
     case 'flask':
       return <><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6A2 2 0 0 0 19 18l-5-9V3" /><path d="M8 14h8" /></>;
     case 'insights':

@@ -10,6 +10,7 @@ type TabKey = 'timer' | 'sessions' | 'stats' | 'categories';
 
 interface Props {
   semester: Semester;
+  onEditSemester: () => void;
 }
 
 const navigation: { key: TabKey; label: string; icon: IconName }[] = [
@@ -27,7 +28,7 @@ function formatDate(date: string) {
   });
 }
 
-export default function Tabs({ semester }: Props) {
+export default function Tabs({ semester, onEditSemester }: Props) {
   const [active, setActive] = useState<TabKey>('timer');
 
   return (
@@ -42,7 +43,18 @@ export default function Tabs({ semester }: Props) {
               <span><AppIcon name="book" size={15} /> {semester.credits} credits · {semester.credits * 3}h/week</span>
             </p>
           </div>
-          <span className="badge"><span className="status-dot" /> Active semester</span>
+          <div className="semester-header-actions">
+            <span className="badge"><span className="status-dot" /> Active semester</span>
+            <button
+              id="edit-semester-button"
+              className="button button-secondary"
+              type="button"
+              onClick={onEditSemester}
+            >
+              <AppIcon name="edit" size={17} />
+              Edit semester
+            </button>
+          </div>
         </div>
 
         <nav className="tab-nav" aria-label="Workspace sections">

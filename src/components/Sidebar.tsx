@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Semester, SemesterInput } from '../types';
-import { listSemesters, createSemester, deleteSemester } from '../db';
+import { listSemesters, createSemester, updateSemester, deleteSemester } from '../db';
+import { persistSemester, shouldHandleSemesterEditRequest } from '../lib/semester';
 import SemesterForm from './SemesterForm';
 import { AppIcon } from './Icons';
 
@@ -8,11 +9,18 @@ interface Props {
   selected: Semester | null;
   onSelect: (semester: Semester | null) => void;
   createRequest?: number;
+  editRequest?: number;
 }
 
-export default function Sidebar({ selected, onSelect, createRequest = 0 }: Props) {
+export default function Sidebar({
+  selected,
+  onSelect,
+  createRequest = 0,
+  editRequest = 0,
+}: Props) {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingSemester, setEditingSemester] = useState<Semester | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Semester | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,6 +28,7 @@ export default function Sidebar({ selected, onSelect, createRequest = 0 }: Props
   const [loadError, setLoadError] = useState('');
   const [formError, setFormError] = useState('');
   const addButtonRef = useRef<HTMLButtonElement>(null);
+  const handledEditRequestRef = useRef(0);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -46,19 +55,41 @@ export default function Sidebar({ selected, onSelect, createRequest = 0 }: Props
   useEffect(() => {
     if (createRequest > 0) {
       setFormError('');
+      setEditingSemester(null);
       setShowForm(true);
     }
   }, [createRequest]);
 
-  const returnFocus = () => {
-    window.setTimeout(() => addButtonRef.current?.focus(), 0);
+  useEffect(() => {
+    if (!shouldHandleSemesterEditRequest(
+      editRequest,
+      handledEditRequestRef.current,
+      Boolean(selected)
+    )) return;
+
+    handledEditRequestRef.current = editRequest;
+    setFormError('');
+    setEditingSemester(selected);
+    setShowForm(true);
+  }, [editRequest, selected]);
+
+  const returnFocus = (target: 'create' | 'edit' = 'create') => {
+    window.setTimeout(() => {
+      if (target === 'edit') {
+        document.getElementById('edit-semester-button')?.focus();
+        return;
+      }
+      addButtonRef.current?.focus();
+    }, 0);
   };
 
   const closeForm = () => {
     if (saving) return;
+    const focusTarget = editingSemester ? 'edit' : 'create';
     setShowForm(false);
+    setEditingSemester(null);
     setFormError('');
-    returnFocus();
+    returnFocus(focusTarget);
   };
 
   useEffect(() => {
@@ -96,16 +127,28 @@ export default function Sidebar({ selected, onSelect, createRequest = 0 }: Props
   const handleSave = async (input: SemesterInput) => {
     setSaving(true);
     setFormError('');
+    const editedId = editingSemester?.id ?? null;
     try {
-      await createSemester(input);
+      await persistSemester(editedId, input, {
+        create: createSemester,
+        update: updateSemester,
+      });
       const data = await listSemesters();
       setSemesters(data);
-      onSelect(data[0] ?? null);
+      const savedSemester = editedId === null
+        ? data[0]
+        : data.find((semester) => semester.id === editedId);
+      onSelect(savedSemester ?? null);
       setShowForm(false);
-      returnFocus();
+      setEditingSemester(null);
+      returnFocus(editedId === null ? 'create' : 'edit');
     } catch (error) {
-      console.error('Failed to create semester:', error);
-      setFormError('Could not create the semester. Check the fields and try again.');
+      console.error(`Failed to ${editedId === null ? 'create' : 'update'} semester:`, error);
+      setFormError(
+        editedId === null
+          ? 'Could not create the semester. Check the fields and try again.'
+          : 'Could not update the semester. Check the fields and try again.'
+      );
     } finally {
       setSaving(false);
     }
@@ -197,6 +240,7 @@ export default function Sidebar({ selected, onSelect, createRequest = 0 }: Props
           type="button"
           onClick={() => {
             setFormError('');
+            setEditingSemester(null);
             setShowForm(true);
           }}
         >
@@ -220,6 +264,7 @@ export default function Sidebar({ selected, onSelect, createRequest = 0 }: Props
             aria-labelledby="semester-dialog-title"
           >
             <SemesterForm
+              semester={editingSemester}
               onSave={handleSave}
               onCancel={closeForm}
               isSaving={saving}

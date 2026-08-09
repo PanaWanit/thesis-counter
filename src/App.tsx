@@ -7,6 +7,7 @@ import { AppIcon } from './components/Icons';
 function App() {
   const [selected, setSelected] = useState<Semester | null>(null);
   const [createRequest, setCreateRequest] = useState(0);
+  const [editRequest, setEditRequest] = useState(0);
 
   return (
     <div className="app-shell">
@@ -15,10 +16,14 @@ function App() {
         selected={selected}
         onSelect={setSelected}
         createRequest={createRequest}
+        editRequest={editRequest}
       />
       <main id="main-content" className="workspace-main" tabIndex={-1}>
         {selected ? (
-          <Tabs semester={selected} />
+          <Tabs
+            semester={selected}
+            onEditSemester={() => setEditRequest((value) => value + 1)}
+          />
         ) : (
           <div className="workspace">
             <section className="empty-state" aria-labelledby="empty-semester-title">
