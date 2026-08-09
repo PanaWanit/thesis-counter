@@ -1,69 +1,278 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Semester, SemesterInput } from '../types';
 import { listSemesters, createSemester, deleteSemester } from '../db';
 import SemesterForm from './SemesterForm';
+import { AppIcon } from './Icons';
 
 interface Props {
   selected: Semester | null;
-  onSelect: (s: Semester | null) => void;
+  onSelect: (semester: Semester | null) => void;
+  createRequest?: number;
 }
 
-export default function Sidebar({ selected, onSelect }: Props) {
+export default function Sidebar({ selected, onSelect, createRequest = 0 }: Props) {
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Semester | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [formError, setFormError] = useState('');
+  const addButtonRef = useRef<HTMLButtonElement>(null);
 
   const refresh = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
     try {
       const data = await listSemesters();
       setSemesters(data);
-      if (data.length > 0 && !selected) {
-        onSelect(data[0]);
-      }
-    } catch (err) {
-      console.error('Failed to refresh semesters:', err);
+      const current = data.find((semester) => semester.id === selected?.id);
+      onSelect(current ?? data[0] ?? null);
+      return data;
+    } catch (error) {
+      console.error('Failed to refresh semesters:', error);
+      setLoadError('Could not load semesters.');
+      return [];
+    } finally {
+      setLoading(false);
     }
-  }, [selected, onSelect]);
+  }, [onSelect, selected?.id]);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (createRequest > 0) {
+      setFormError('');
+      setShowForm(true);
+    }
+  }, [createRequest]);
+
+  const returnFocus = () => {
+    window.setTimeout(() => addButtonRef.current?.focus(), 0);
+  };
+
+  const closeForm = () => {
+    if (saving) return;
+    setShowForm(false);
+    setFormError('');
+    returnFocus();
+  };
+
+  useEffect(() => {
+    if (!showForm && !deleteTarget) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        const panel = document.querySelector<HTMLElement>('.dialog-panel');
+        const focusable = panel?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+        );
+        if (!focusable || focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
+      if (event.key === 'Escape') {
+        if (showForm) closeForm();
+        if (deleteTarget && !deleting) {
+          setDeleteTarget(null);
+          returnFocus();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [deleteTarget, deleting, showForm, saving]);
 
   const handleSave = async (input: SemesterInput) => {
+    setSaving(true);
+    setFormError('');
     try {
       await createSemester(input);
+      const data = await listSemesters();
+      setSemesters(data);
+      onSelect(data[0] ?? null);
       setShowForm(false);
-      await refresh();
-    } catch (err) {
-      console.error('Failed to create semester:', err);
+      returnFocus();
+    } catch (error) {
+      console.error('Failed to create semester:', error);
+      setFormError('Could not create the semester. Check the fields and try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setLoadError('');
     try {
-      await deleteSemester(id);
-      if (selected?.id === id) {
-        const remaining = semesters.filter((s) => s.id !== id);
-        onSelect(remaining.length > 0 ? remaining[0] : null);
+      await deleteSemester(deleteTarget.id);
+      const data = await listSemesters();
+      setSemesters(data);
+      if (selected?.id === deleteTarget.id) {
+        onSelect(data[0] ?? null);
       }
-      await refresh();
-    } catch (err) {
-      console.error('Failed to delete semester:', err);
+      setDeleteTarget(null);
+      returnFocus();
+    } catch (error) {
+      console.error('Failed to delete semester:', error);
+      setLoadError('Could not delete this semester. Try again.');
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
   return (
-    <aside style={{ width: 220, borderRight: '1px solid #ccc', padding: 12 }}>
-      <h2>Semesters</h2>
-      <button onClick={() => setShowForm(true)}>+ Add</button>
-      {showForm && <SemesterForm onSave={handleSave} onCancel={() => setShowForm(false)} />}
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {semesters.map((s) => (
-          <li key={s.id} style={{ background: selected?.id === s.id ? '#eee' : 'transparent' }}>
-            <button onClick={() => onSelect(s)} style={{ textAlign: 'left' }}>
-              {s.name} ({s.credits} cr)
-            </button>
-            <button onClick={() => handleDelete(s.id)}>×</button>
-          </li>
-        ))}
-      </ul>
+    <aside className="sidebar" aria-label="Semester navigation">
+      <div className="brand">
+        <span className="brand-mark"><AppIcon name="flask" size={24} /></span>
+        <div className="brand-copy">
+          <p className="brand-title">Thesis Counter</p>
+          <p className="brand-subtitle">Research Studio</p>
+        </div>
+      </div>
+
+      <div className="sidebar-section">
+        <div className="sidebar-section-header">
+          <p className="sidebar-label">Semesters</p>
+          {!loading && <span className="count-pill">{semesters.length}</span>}
+        </div>
+
+        {loadError && (
+          <div className="alert" role="alert">
+            <AppIcon name="close" size={16} />
+            <span>{loadError}</span>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="loading-stack" aria-label="Loading semesters">
+            <div className="skeleton" />
+            <div className="skeleton" />
+          </div>
+        ) : (
+          <ul className="semester-list">
+            {semesters.map((semester) => (
+              <li
+                key={semester.id}
+                className={`semester-item ${selected?.id === semester.id ? 'selected' : ''}`}
+              >
+                <button
+                  className="semester-select"
+                  type="button"
+                  aria-current={selected?.id === semester.id ? 'page' : undefined}
+                  onClick={() => onSelect(semester)}
+                >
+                  <span className="semester-name">{semester.name}</span>
+                  <span className="semester-meta">{semester.credits} credits · {semester.credits * 3}h/week</span>
+                </button>
+                <button
+                  className="icon-button"
+                  type="button"
+                  aria-label={`Delete ${semester.name}`}
+                  title={`Delete ${semester.name}`}
+                  onClick={() => setDeleteTarget(semester)}
+                >
+                  <AppIcon name="trash" size={17} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <button
+          ref={addButtonRef}
+          className="button button-indigo button-block"
+          type="button"
+          onClick={() => {
+            setFormError('');
+            setShowForm(true);
+          }}
+        >
+          <AppIcon name="plus" />
+          New semester
+        </button>
+      </div>
+
+      {showForm && (
+        <div
+          className="dialog-scrim"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeForm();
+          }}
+        >
+          <section
+            className="dialog-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="semester-dialog-title"
+          >
+            <SemesterForm
+              onSave={handleSave}
+              onCancel={closeForm}
+              isSaving={saving}
+              error={formError}
+            />
+          </section>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div className="dialog-scrim" role="presentation">
+          <section
+            className="dialog-panel dialog-small"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="delete-semester-title"
+            aria-describedby="delete-semester-copy"
+          >
+            <div className="dialog-header">
+              <div>
+                <p className="eyebrow">Delete semester</p>
+                <h2 id="delete-semester-title">Remove {deleteTarget.name}?</h2>
+              </div>
+            </div>
+            <p id="delete-semester-copy" className="confirm-copy">
+              This removes the semester and its saved sessions. This action cannot be undone.
+            </p>
+            <div className="dialog-actions">
+              <button
+                className="button button-secondary"
+                type="button"
+                autoFocus
+                disabled={deleting}
+                onClick={() => {
+                  setDeleteTarget(null);
+                  returnFocus();
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="button button-danger"
+                type="button"
+                disabled={deleting}
+                onClick={handleDelete}
+              >
+                <AppIcon name="trash" size={17} />
+                {deleting ? 'Deleting…' : 'Delete semester'}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </aside>
   );
 }
