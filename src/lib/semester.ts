@@ -3,6 +3,26 @@ export interface SemesterFieldErrors {
   credits?: string;
 }
 
+export interface SemesterFormPresentation {
+  eyebrow: string;
+  title: string;
+  submitLabel: string;
+}
+
+export function getSemesterFormPresentation(isEditing: boolean): SemesterFormPresentation {
+  return isEditing
+    ? {
+        eyebrow: 'Semester settings',
+        title: 'Edit semester',
+        submitLabel: 'Save changes',
+      }
+    : {
+        eyebrow: 'Semester setup',
+        title: 'Create a semester',
+        submitLabel: 'Create semester',
+      };
+}
+
 export function parseSemesterCredits(value: string): number | null {
   const normalized = value.trim();
   if (!/^[1-9]\d*$/.test(normalized)) return null;

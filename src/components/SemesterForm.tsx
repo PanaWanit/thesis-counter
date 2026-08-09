@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import type { Semester, SemesterInput } from '../types';
 import { formatDateInput } from '../lib/date';
+import {
+  getSemesterFormPresentation,
+  parseSemesterCredits,
+  requiredWeeklyHours,
+  validateSemesterDraft,
+  type SemesterFieldErrors,
+} from '../lib/semester';
 import { AppIcon } from './Icons';
 
 interface Props {
@@ -21,21 +28,26 @@ export default function SemesterForm({
   const [name, setName] = useState(semester?.name ?? '');
   const [startDate, setStartDate] = useState(semester?.start_date ?? formatDateInput(new Date()));
   const [endDate, setEndDate] = useState(semester?.end_date ?? formatDateInput(new Date()));
-  const [credits, setCredits] = useState(semester?.credits ?? 6);
-  const [validationError, setValidationError] = useState('');
+  const [credits, setCredits] = useState(String(semester?.credits ?? 6));
+  const [fieldErrors, setFieldErrors] = useState<SemesterFieldErrors>({});
+  const presentation = getSemesterFormPresentation(Boolean(semester));
+  const weeklyHours = requiredWeeklyHours(credits);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (endDate < startDate) {
-      setValidationError('End date must be on or after the start date.');
+    const nextErrors = validateSemesterDraft(startDate, endDate, credits);
+    const parsedCredits = parseSemesterCredits(credits);
+    setFieldErrors(nextErrors);
+
+    if (nextErrors.dates || nextErrors.credits || parsedCredits === null) {
       return;
     }
-    setValidationError('');
+
     void onSave({
       name: name.trim(),
       start_date: startDate,
       end_date: endDate,
-      credits: Math.max(1, Number(credits) || 1),
+      credits: parsedCredits,
     });
   };
 
@@ -43,8 +55,8 @@ export default function SemesterForm({
     <>
       <div className="dialog-header">
         <div>
-          <p className="eyebrow">Semester setup</p>
-          <h2 id="semester-dialog-title">Create a semester</h2>
+          <p className="eyebrow">{presentation.eyebrow}</p>
+          <h2 id="semester-dialog-title">{presentation.title}</h2>
         </div>
         <button
           className="icon-button"
@@ -79,7 +91,10 @@ export default function SemesterForm({
             className="control"
             type="date"
             value={startDate}
-            onChange={(event) => setStartDate(event.target.value)}
+            onChange={(event) => {
+              setStartDate(event.target.value);
+              setFieldErrors((current) => ({ ...current, dates: undefined }));
+            }}
             required
           />
         </div>
@@ -92,9 +107,19 @@ export default function SemesterForm({
             type="date"
             value={endDate}
             min={startDate}
-            onChange={(event) => setEndDate(event.target.value)}
+            onChange={(event) => {
+              setEndDate(event.target.value);
+              setFieldErrors((current) => ({ ...current, dates: undefined }));
+            }}
+            aria-invalid={Boolean(fieldErrors.dates)}
+            aria-describedby={fieldErrors.dates ? 'semester-dates-error' : undefined}
             required
           />
+          {fieldErrors.dates && (
+            <p id="semester-dates-error" className="field-error" role="alert">
+              {fieldErrors.dates}
+            </p>
+          )}
         </div>
 
         <div className="field field-full">
@@ -104,20 +129,32 @@ export default function SemesterForm({
             className="control"
             type="number"
             min={1}
+            step={1}
             value={credits}
-            onChange={(event) => setCredits(Math.max(1, Number(event.target.value) || 1))}
-            aria-describedby="credits-help"
+            onChange={(event) => {
+              setCredits(event.target.value);
+              setFieldErrors((current) => ({ ...current, credits: undefined }));
+            }}
+            aria-invalid={Boolean(fieldErrors.credits)}
+            aria-describedby={fieldErrors.credits ? 'credits-help credits-error' : 'credits-help'}
             required
           />
           <p id="credits-help" className="helper-text">
-            1 credit = 3 required research hours per week.
+            {weeklyHours === null
+              ? '1 credit = 3 required research hours per week.'
+              : `${credits} ${credits === '1' ? 'credit' : 'credits'} = ${weeklyHours} required research hours per week.`}
           </p>
+          {fieldErrors.credits && (
+            <p id="credits-error" className="field-error" role="alert">
+              {fieldErrors.credits}
+            </p>
+          )}
         </div>
 
-        {(validationError || error) && (
+        {error && (
           <div className="alert" role="alert">
             <AppIcon name="close" size={16} />
-            <span>{validationError || error}</span>
+            <span>{error}</span>
           </div>
         )}
 
@@ -127,7 +164,7 @@ export default function SemesterForm({
           </button>
           <button className="button button-primary" type="submit" disabled={isSaving}>
             <AppIcon name="check" size={18} />
-            {isSaving ? 'Saving…' : 'Create semester'}
+            {isSaving ? 'Saving…' : presentation.submitLabel}
           </button>
         </div>
       </form>

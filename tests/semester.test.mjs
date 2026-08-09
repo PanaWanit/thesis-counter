@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  getSemesterFormPresentation,
   parseSemesterCredits,
   requiredWeeklyHours,
   validateSemesterDraft,
@@ -21,5 +22,21 @@ test('reports reversed semester dates and invalid credits', () => {
   assert.deepEqual(validateSemesterDraft('2026-08-10', '2026-08-09', '0'), {
     dates: 'End date must be on or after the start date.',
     credits: 'Credits must be a whole number of at least 1.',
+  });
+});
+
+test('labels an existing semester as an edit', () => {
+  assert.deepEqual(getSemesterFormPresentation(true), {
+    eyebrow: 'Semester settings',
+    title: 'Edit semester',
+    submitLabel: 'Save changes',
+  });
+});
+
+test('keeps creation copy for a new semester', () => {
+  assert.deepEqual(getSemesterFormPresentation(false), {
+    eyebrow: 'Semester setup',
+    title: 'Create a semester',
+    submitLabel: 'Create semester',
   });
 });

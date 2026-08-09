@@ -777,6 +777,14 @@ textarea.control {
   line-height: 1.45;
 }
 
+.field-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
 .entry-form {
   display: grid;
   grid-template-columns: 1.05fr 0.75fr 0.75fr 1fr;
