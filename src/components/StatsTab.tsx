@@ -72,7 +72,7 @@ export default function StatsTab({ semester }: Props) {
           <span className="empty-icon"><AppIcon name="insights" size={27} /></span>
           <h2 id="insights-error-title">Insights unavailable</h2>
           <p>{error || 'Research insights could not be calculated.'}</p>
-          <button className="button button-indigo" type="button" onClick={refresh}>Retry</button>
+          <button className="button button-accent" type="button" onClick={refresh}>Retry</button>
         </div>
       </section>
     );

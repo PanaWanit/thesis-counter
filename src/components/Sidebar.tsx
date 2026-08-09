@@ -236,7 +236,7 @@ export default function Sidebar({
 
         <button
           ref={addButtonRef}
-          className="button button-indigo button-block"
+          className="button button-accent button-block"
           type="button"
           onClick={() => {
             setFormError('');

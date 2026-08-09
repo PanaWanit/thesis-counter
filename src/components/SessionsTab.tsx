@@ -248,7 +248,7 @@ export default function SessionsTab({ semester }: Props) {
                       <td className="numeric" data-label="Duration">{(session.duration_minutes / 60).toFixed(2)}h</td>
                       <td data-label="Category">
                         <span className="category-label">
-                          <span className="category-dot" style={{ '--category-color': category?.color ?? 'var(--indigo)' } as React.CSSProperties} />
+                          <span className="category-dot" style={{ '--category-color': category?.color ?? 'var(--accent)' } as React.CSSProperties} />
                           {category?.name ?? `Category ${session.category_id}`}
                         </span>
                       </td>

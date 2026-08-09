@@ -6,7 +6,7 @@ import { AppIcon } from './Icons';
 export default function CategoryManager() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState('');
-  const [color, setColor] = useState('#4f46e5');
+  const [color, setColor] = useState('#176b67');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
