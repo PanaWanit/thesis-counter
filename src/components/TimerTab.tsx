@@ -7,6 +7,7 @@ import {
   listCategories,
 } from '../db';
 import { AppIcon } from './Icons';
+import MarkdownPreview from './MarkdownPreview';
 
 interface Props {
   semester: Semester;
@@ -31,6 +32,7 @@ export default function TimerTab({ semester }: Props) {
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
   const [weekly, setWeekly] = useState<WeeklyStats | null>(null);
   const [semesterStats, setSemesterStats] = useState<SemesterStats | null>(null);
@@ -101,12 +103,13 @@ export default function TimerTab({ semester }: Props) {
         category_id: categoryId,
         started_at: startTime.toISOString(),
         ended_at: endedAt.toISOString(),
-        title: '',
+        title: title.trim(),
         note: note.trim(),
         manual: 0,
       });
       setStartTime(null);
       setElapsed(0);
+      setTitle('');
       setNote('');
       await refreshStats();
     } catch (error) {
@@ -176,8 +179,19 @@ export default function TimerTab({ semester }: Props) {
               )}
             </div>
 
+            <div className="field timer-title">
+              <label htmlFor="timer-title">Title <span className="helper-text">(optional)</span></label>
+              <input
+                id="timer-title"
+                className="control"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Short name for this session"
+              />
+            </div>
+
             <div className="field timer-note">
-              <label htmlFor="timer-note">Session note <span className="helper-text">(optional)</span></label>
+              <label htmlFor="timer-note">Description <span className="helper-text">(markdown supported)</span></label>
               <textarea
                 id="timer-note"
                 className="control"
@@ -185,6 +199,11 @@ export default function TimerTab({ semester }: Props) {
                 onChange={(event) => setNote(event.target.value)}
                 placeholder="What will you move forward?"
               />
+            </div>
+
+            <div className="field timer-preview">
+              <p className="field-label">Preview</p>
+              <MarkdownPreview markdown={note} />
             </div>
           </div>
 

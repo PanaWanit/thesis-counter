@@ -1007,8 +1007,14 @@ p {
   align-items: end;
 }
 
-.timer-note {
+.timer-title,
+.timer-note,
+.timer-preview {
   grid-column: 1 / -1;
+}
+
+.timer-preview .field-label {
+  margin-bottom: 6px;
 }
 
 .timer-actions {
