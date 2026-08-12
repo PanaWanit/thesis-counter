@@ -32,6 +32,12 @@ fn main() {
             sql: "UPDATE categories SET created_at = strftime('%Y-%m-%dT%H:%M:%SZ', created_at) WHERE created_at NOT LIKE '%T%';",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 6,
+            description: "add_session_title",
+            sql: "ALTER TABLE sessions ADD COLUMN title TEXT NOT NULL DEFAULT '';",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
