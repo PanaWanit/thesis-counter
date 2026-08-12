@@ -1728,7 +1728,6 @@ textarea.control {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .entry-form .field-note,
   .entry-form .field-title,
   .entry-form .field-description {
     grid-column: 1 / -1;
