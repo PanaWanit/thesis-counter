@@ -91,3 +91,4 @@ TEST-results.xml
 *v8.log
 /lib/
 .agents/
+.worktrees/
