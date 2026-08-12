@@ -75,9 +75,9 @@ export async function createSession(input: SessionInput): Promise<void> {
   const duration = Math.max(0, Math.round((ended.getTime() - started.getTime()) / 60000));
   await execute(
     `INSERT INTO sessions
-     (semester_id, category_id, started_at, ended_at, duration_minutes, note, manual, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, datetime("now"))`,
-    [input.semester_id, input.category_id, input.started_at, input.ended_at, duration, input.note, input.manual]
+     (semester_id, category_id, started_at, ended_at, duration_minutes, title, note, manual, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, datetime("now"))`,
+    [input.semester_id, input.category_id, input.started_at, input.ended_at, duration, input.title, input.note, input.manual]
   );
 }
 

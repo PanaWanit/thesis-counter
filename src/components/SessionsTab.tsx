@@ -86,6 +86,7 @@ export default function SessionsTab({ semester }: Props) {
       category_id: categoryId,
       started_at: started.toISOString(),
       ended_at: ended.toISOString(),
+      title: '',
       note: note.trim(),
       manual: 1,
     };

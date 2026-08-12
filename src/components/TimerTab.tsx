@@ -101,6 +101,7 @@ export default function TimerTab({ semester }: Props) {
         category_id: categoryId,
         started_at: startTime.toISOString(),
         ended_at: endedAt.toISOString(),
+        title: '',
         note: note.trim(),
         manual: 0,
       });

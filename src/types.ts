@@ -28,6 +28,7 @@ export interface Session {
   started_at: string; // ISO datetime
   ended_at: string;
   duration_minutes: number;
+  title: string;
   note: string;
   manual: number; // 0 or 1
   created_at: string;
@@ -38,6 +39,7 @@ export interface SessionInput {
   category_id: number;
   started_at: string;
   ended_at: string;
+  title: string;
   note: string;
   manual: number;
 }
