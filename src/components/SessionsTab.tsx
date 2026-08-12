@@ -3,6 +3,8 @@ import type { Category, Session, Semester, SessionInput } from '../types';
 import { listSessions, createSession, deleteSession, listCategories } from '../db';
 import { formatDateInput } from '../lib/date';
 import { AppIcon } from './Icons';
+import NoteCard from './NoteCard';
+import MarkdownPreview from './MarkdownPreview';
 
 interface Props {
   semester: Semester;
@@ -30,7 +32,9 @@ export default function SessionsTab({ semester }: Props) {
   const [start, setStart] = useState('09:00');
   const [end, setEnd] = useState('10:00');
   const [categoryId, setCategoryId] = useState<number | ''>('');
+  const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
+  const [viewingNote, setViewingNote] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -86,7 +90,7 @@ export default function SessionsTab({ semester }: Props) {
       category_id: categoryId,
       started_at: started.toISOString(),
       ended_at: ended.toISOString(),
-      title: '',
+      title: title.trim(),
       note: note.trim(),
       manual: 1,
     };
@@ -94,6 +98,7 @@ export default function SessionsTab({ semester }: Props) {
     setSaving(true);
     try {
       await createSession(input);
+      setTitle('');
       setNote('');
       await refresh();
     } catch (error) {
@@ -167,10 +172,20 @@ export default function SessionsTab({ semester }: Props) {
               {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
             </select>
           </div>
-          <div className="field field-note">
-            <label htmlFor="session-note">Note <span className="helper-text">(optional)</span></label>
+          <div className="field field-title">
+            <label htmlFor="session-title">Title <span className="helper-text">(optional)</span></label>
             <input
-              id="session-note"
+              id="session-title"
+              className="control"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Short name for this session"
+            />
+          </div>
+          <div className="field field-description">
+            <label htmlFor="session-description">Description <span className="helper-text">(markdown supported)</span></label>
+            <textarea
+              id="session-description"
               className="control"
               value={note}
               onChange={(event) => setNote(event.target.value)}
@@ -189,6 +204,11 @@ export default function SessionsTab({ semester }: Props) {
             <span>{formError}</span>
           </div>
         )}
+
+        <div className="manual-preview">
+          <p className="field-label">Preview</p>
+          <MarkdownPreview markdown={note} />
+        </div>
       </section>
 
       <section className="panel history-panel" aria-labelledby="history-title">
@@ -253,8 +273,19 @@ export default function SessionsTab({ semester }: Props) {
                           {category?.name ?? `Category ${session.category_id}`}
                         </span>
                       </td>
-                      <td data-label="Note">
-                        {session.note || <span className="helper-text">No note</span>}
+                      <td className="note-cell" data-label="Note">
+                        <button
+                          className="note-cell-button"
+                          type="button"
+                          onClick={() => setViewingNote(session)}
+                        >
+                          <span className="note-cell-title">{session.title.trim() || 'No title'}</span>
+                          {session.note ? (
+                            <span className="note-cell-hint">View note</span>
+                          ) : (
+                            <span className="helper-text">No description</span>
+                          )}
+                        </button>
                         {session.manual === 1 && <span className="manual-badge">Manual</span>}
                       </td>
                       <td data-label="Actions">
@@ -285,6 +316,14 @@ export default function SessionsTab({ semester }: Props) {
               </tbody>
             </table>
           </div>
+        )}
+
+        {viewingNote && (
+          <NoteCard
+            title={viewingNote.title}
+            note={viewingNote.note}
+            onClose={() => setViewingNote(null)}
+          />
         )}
       </section>
     </section>

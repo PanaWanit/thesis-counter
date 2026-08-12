@@ -1209,12 +1209,58 @@ textarea.control {
   gap: 14px;
 }
 
-.entry-form .field-note {
+.entry-form .field-note,
+.entry-form .field-title,
+.entry-form .field-description {
   grid-column: 1 / -2;
 }
 
 .entry-form .form-submit {
   align-self: end;
+}
+
+.manual-preview {
+  margin-top: 18px;
+}
+
+.manual-preview .field-label {
+  margin-bottom: 6px;
+}
+
+.note-cell {
+  min-width: 0;
+}
+
+.note-cell-button {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.note-cell-button:hover .note-cell-title {
+  color: var(--accent-strong);
+}
+
+.note-cell-title {
+  display: block;
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-cell-hint {
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 650;
 }
 
 .alert {
@@ -1683,7 +1729,9 @@ textarea.control {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .entry-form .field-note {
+  .entry-form .field-note,
+  .entry-form .field-title,
+  .entry-form .field-description {
     grid-column: 1 / -1;
   }
 
@@ -1786,6 +1834,8 @@ textarea.control {
 
   .timer-note,
   .entry-form .field-note,
+  .entry-form .field-title,
+  .entry-form .field-description,
   .entry-form .form-submit,
   .dialog-form .field-full,
   .dialog-form .dialog-actions,
