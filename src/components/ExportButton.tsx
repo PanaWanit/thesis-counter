@@ -18,7 +18,7 @@ export default function ExportButton({ semester, categories }: Props) {
     setError('');
     try {
       const sessions = await listSessions(semester.id);
-      const headers = ['date', 'start_time', 'end_time', 'duration_hours', 'category', 'note', 'manual'];
+      const headers = ['date', 'start_time', 'end_time', 'duration_hours', 'category', 'title', 'note', 'manual'];
       const rows = sessions.map((session) => {
         const started = new Date(session.started_at);
         const ended = new Date(session.ended_at);
@@ -28,6 +28,7 @@ export default function ExportButton({ semester, categories }: Props) {
           ended.toLocaleTimeString(),
           (session.duration_minutes / 60).toFixed(2),
           categories.find((category) => category.id === session.category_id)?.name ?? '',
+          session.title,
           session.note,
           session.manual ? 'yes' : 'no',
         ];
