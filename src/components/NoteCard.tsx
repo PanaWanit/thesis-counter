@@ -12,6 +12,7 @@ export default function NoteCard({ title, note, onClose }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    const trigger = document.activeElement as HTMLElement | null;
     closeRef.current?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -22,7 +23,12 @@ export default function NoteCard({ title, note, onClose }: Props) {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (trigger && document.body.contains(trigger)) {
+        trigger.focus();
+      }
+    };
   }, [onClose]);
 
   const displayTitle = title.trim() || 'No title';

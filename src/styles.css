@@ -1209,7 +1209,6 @@ textarea.control {
   gap: 14px;
 }
 
-.entry-form .field-note,
 .entry-form .field-title,
 .entry-form .field-description {
   grid-column: 1 / -2;
@@ -1833,7 +1832,6 @@ textarea.control {
   }
 
   .timer-note,
-  .entry-form .field-note,
   .entry-form .field-title,
   .entry-form .field-description,
   .entry-form .form-submit,
