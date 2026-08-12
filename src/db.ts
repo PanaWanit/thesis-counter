@@ -92,6 +92,13 @@ export async function deleteSession(id: number): Promise<void> {
   await execute('DELETE FROM sessions WHERE id = $1', [id]);
 }
 
+export async function updateSessionNote(id: number, title: string, note: string): Promise<void> {
+  await execute(
+    'UPDATE sessions SET title = $1, note = $2 WHERE id = $3',
+    [title, note, id]
+  );
+}
+
 export async function getWeeklyStats(semester: Semester): Promise<WeeklyStats> {
   const { start, end } = mondayWeekBounds(new Date());
   const rows = await select<{ current_week_minutes: number }>(

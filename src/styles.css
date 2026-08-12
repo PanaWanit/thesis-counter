@@ -2032,6 +2032,26 @@ textarea.control {
   overflow-y: auto;
 }
 
+.note-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.note-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.note-edit-form .field {
+  gap: 6px;
+}
+
 @media (max-width: 1060px) {
   .entry-form .field-title,
   .entry-form .field-description {

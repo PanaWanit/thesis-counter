@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Category, Session, Semester, SessionInput } from '../types';
-import { listSessions, createSession, deleteSession, listCategories } from '../db';
+import { listSessions, createSession, deleteSession, updateSessionNote, listCategories } from '../db';
 import { formatDateInput } from '../lib/date';
 import { AppIcon } from './Icons';
 import NoteCard from './NoteCard';
@@ -320,9 +320,12 @@ export default function SessionsTab({ semester }: Props) {
 
         {viewingNote && (
           <NoteCard
-            title={viewingNote.title}
-            note={viewingNote.note}
+            session={viewingNote}
             onClose={() => setViewingNote(null)}
+            onSave={async (id, title, note) => {
+              await updateSessionNote(id, title, note);
+              await refresh();
+            }}
           />
         )}
       </section>
