@@ -96,6 +96,8 @@ export default function SemesterForm({
               setEndDate(next.end);
               setFieldErrors((current) => ({ ...current, dates: undefined }));
             }}
+            invalid={Boolean(fieldErrors.dates)}
+            describedBy={fieldErrors.dates ? 'semester-dates-error' : undefined}
           />
           {fieldErrors.dates && (
             <p id="semester-dates-error" className="field-error" role="alert">

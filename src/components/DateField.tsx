@@ -13,6 +13,8 @@ interface Props {
   min?: string;
   max?: string;
   disabled?: boolean;
+  invalid?: boolean;
+  describedBy?: string;
 }
 
 function label(value: CalendarValue): string {
@@ -20,7 +22,16 @@ function label(value: CalendarValue): string {
   return `${formatDateLabel(value.start)}  →  ${formatDateLabel(value.end)}`;
 }
 
-export default function DateField({ id, value, onChange, min, max, disabled = false }: Props) {
+export default function DateField({
+  id,
+  value,
+  onChange,
+  min,
+  max,
+  disabled = false,
+  invalid = false,
+  describedBy,
+}: Props) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -34,6 +45,8 @@ export default function DateField({ id, value, onChange, min, max, disabled = fa
         disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         onClick={() => setOpen((current) => !current)}
       >
         <AppIcon name="calendar" size={16} />
