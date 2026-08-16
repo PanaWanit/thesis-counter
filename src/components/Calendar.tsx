@@ -46,6 +46,11 @@ export default function Calendar({ value, onChange, min, max }: Props) {
     return false;
   };
 
+  const tabbable =
+    (!isDisabled(focused) && cells.some((cell) => cell.date === focused) ? focused : null) ??
+    cells.find((cell) => !isDisabled(cell.date))?.date ??
+    focused;
+
   const isSelected = (date: string) => {
     if (value.mode === 'single') return isSameDay(date, value.date);
     return isSameDay(date, value.start) || isSameDay(date, value.end);
@@ -175,31 +180,35 @@ export default function Calendar({ value, onChange, min, max }: Props) {
         aria-label={monthLabel(year, month)}
         onKeyDown={handleKeyDown}
       >
-        {cells.map((cell) => {
-          const focusedCell = isSameDay(cell.date, focused);
-          return (
-            <button
-              key={cell.date}
-              type="button"
-              role="gridcell"
-              className="calendar-day"
-              data-focused={focusedCell}
-              data-outside={!cell.inMonth}
-              data-selected={isSelected(cell.date)}
-              data-within={isWithin(cell.date)}
-              aria-selected={isSelected(cell.date)}
-              aria-label={cell.date}
-              disabled={isDisabled(cell.date)}
-              tabIndex={focusedCell ? 0 : -1}
-              onClick={() => {
-                setFocused(cell.date);
-                select(cell.date);
-              }}
-            >
-              {cell.day}
-            </button>
-          );
-        })}
+        {Array.from({ length: 6 }, (_, week) => cells.slice(week * 7, week * 7 + 7)).map((row) => (
+          <div key={row[0].date} className="calendar-row" role="row">
+            {row.map((cell) => {
+              const focusedCell = cell.date === tabbable;
+              return (
+                <button
+                  key={cell.date}
+                  type="button"
+                  role="gridcell"
+                  className="calendar-day"
+                  data-focused={focusedCell}
+                  data-outside={!cell.inMonth}
+                  data-selected={isSelected(cell.date)}
+                  data-within={isWithin(cell.date)}
+                  aria-selected={isSelected(cell.date)}
+                  aria-label={cell.date}
+                  disabled={isDisabled(cell.date)}
+                  tabIndex={focusedCell ? 0 : -1}
+                  onClick={() => {
+                    setFocused(cell.date);
+                    select(cell.date);
+                  }}
+                >
+                  {cell.day}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

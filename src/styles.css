@@ -2229,6 +2229,10 @@ textarea.control {
   gap: 2px;
 }
 
+.calendar-row {
+  display: contents;
+}
+
 .calendar-weekdays span {
   padding-bottom: 2px;
   color: var(--ink-tertiary);
