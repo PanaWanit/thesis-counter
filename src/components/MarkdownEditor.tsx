@@ -44,13 +44,14 @@ function applyAction(
   const prefixLines = (marker: string) => {
     const lineStart = text.lastIndexOf('\n', start - 1) + 1;
     const block = text.slice(lineStart, end);
-    const prefixed = block
-      .split('\n')
+    const lines = block.split('\n');
+    const firstAlreadyPrefixed = lines[0].startsWith(marker);
+    const prefixed = lines
       .map((line) => (line.startsWith(marker) ? line : `${marker}${line}`))
       .join('\n');
     return {
       text: `${text.slice(0, lineStart)}${prefixed}${text.slice(end)}`,
-      start: start + marker.length,
+      start: firstAlreadyPrefixed ? start : start + marker.length,
       end: end + (prefixed.length - block.length),
     };
   };
@@ -83,8 +84,9 @@ export default function MarkdownEditor({
   minRows = 4,
 }: Props) {
   const [tab, setTab] = useState<'write' | 'preview'>('write');
+  const panelId = `${id}-panel`;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const pendingSelection = useRef<{ start: number; end: number } | null>(null);
+  const pendingSelection = useRef<{ start: number; end: number; value: string } | null>(null);
 
   // Grow with content up to a cap, then scroll.
   useEffect(() => {
@@ -98,6 +100,10 @@ export default function MarkdownEditor({
     const selection = pendingSelection.current;
     const node = textareaRef.current;
     if (!selection || !node) return;
+    if (selection.value !== value) {
+      pendingSelection.current = null;
+      return;
+    }
     pendingSelection.current = null;
     node.focus();
     node.setSelectionRange(selection.start, selection.end);
@@ -107,7 +113,7 @@ export default function MarkdownEditor({
     const node = textareaRef.current;
     if (!node) return;
     const next = applyAction(action, value, node.selectionStart, node.selectionEnd);
-    pendingSelection.current = { start: next.start, end: next.end };
+    pendingSelection.current = { start: next.start, end: next.end, value: next.text };
     onChange(next.text);
   };
 
@@ -129,6 +135,7 @@ export default function MarkdownEditor({
             type="button"
             role="tab"
             aria-selected={tab === 'write'}
+            aria-controls={panelId}
             data-active={tab === 'write'}
             onClick={() => setTab('write')}
           >
@@ -139,6 +146,7 @@ export default function MarkdownEditor({
             type="button"
             role="tab"
             aria-selected={tab === 'preview'}
+            aria-controls={panelId}
             data-active={tab === 'preview'}
             onClick={() => setTab('preview')}
           >
@@ -163,22 +171,24 @@ export default function MarkdownEditor({
         </div>
       </div>
 
-      {tab === 'write' ? (
-        <textarea
-          ref={textareaRef}
-          id={id}
-          className="control md-editor-input"
-          rows={minRows}
-          value={value}
-          placeholder={placeholder}
-          onChange={(event) => onChange(event.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-      ) : (
-        <div className="md-editor-preview">
-          <MarkdownPreview markdown={value} />
-        </div>
-      )}
+      <div className="md-editor-panel" role="tabpanel" id={panelId} aria-label="Note content">
+        {tab === 'write' ? (
+          <textarea
+            ref={textareaRef}
+            id={id}
+            className="control md-editor-input"
+            rows={minRows}
+            value={value}
+            placeholder={placeholder}
+            onChange={(event) => onChange(event.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        ) : (
+          <div className="md-editor-preview">
+            <MarkdownPreview markdown={value} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
