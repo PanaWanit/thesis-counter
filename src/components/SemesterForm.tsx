@@ -9,6 +9,7 @@ import {
   type SemesterFieldErrors,
 } from '../lib/semester';
 import { AppIcon } from './Icons';
+import DateField from './DateField';
 
 interface Props {
   semester?: Semester | null;
@@ -84,36 +85,17 @@ export default function SemesterForm({
           />
         </div>
 
-        <div className="field">
-          <label htmlFor="semester-start">Start date</label>
-          <input
-            id="semester-start"
-            className="control"
-            type="date"
-            value={startDate}
-            onChange={(event) => {
-              setStartDate(event.target.value);
+        <div className="field field-full">
+          <label htmlFor="semester-dates">Semester dates</label>
+          <DateField
+            id="semester-dates"
+            value={{ mode: 'range', start: startDate, end: endDate }}
+            onChange={(next) => {
+              if (next.mode !== 'range') return;
+              setStartDate(next.start);
+              setEndDate(next.end);
               setFieldErrors((current) => ({ ...current, dates: undefined }));
             }}
-            required
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor="semester-end">End date</label>
-          <input
-            id="semester-end"
-            className="control"
-            type="date"
-            value={endDate}
-            min={startDate}
-            onChange={(event) => {
-              setEndDate(event.target.value);
-              setFieldErrors((current) => ({ ...current, dates: undefined }));
-            }}
-            aria-invalid={Boolean(fieldErrors.dates)}
-            aria-describedby={fieldErrors.dates ? 'semester-dates-error' : undefined}
-            required
           />
           {fieldErrors.dates && (
             <p id="semester-dates-error" className="field-error" role="alert">

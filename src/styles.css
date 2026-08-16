@@ -2284,3 +2284,20 @@ textarea.control {
   cursor: default;
   opacity: 0.3;
 }
+
+.date-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.date-field-label {
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
