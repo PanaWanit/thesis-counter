@@ -5,7 +5,7 @@ import { persistSemester, shouldHandleSemesterEditRequest } from '../lib/semeste
 import type { ThemeId } from '../lib/theme';
 import SemesterForm from './SemesterForm';
 import { AppIcon } from './Icons';
-import ThemeSelector from './ThemeSelector';
+import SettingsDialog from './SettingsDialog';
 
 interface Props {
   selected: Semester | null;
@@ -28,12 +28,14 @@ export default function Sidebar({
   const [showForm, setShowForm] = useState(false);
   const [editingSemester, setEditingSemester] = useState<Semester | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Semester | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [formError, setFormError] = useState('');
   const addButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
   const handledEditRequestRef = useRef(0);
 
   const refresh = useCallback(async () => {
@@ -79,14 +81,23 @@ export default function Sidebar({
     setShowForm(true);
   }, [editRequest, selected]);
 
-  const returnFocus = (target: 'create' | 'edit' = 'create') => {
+  const returnFocus = (target: 'create' | 'edit' | 'settings' = 'create') => {
     window.setTimeout(() => {
       if (target === 'edit') {
         document.getElementById('edit-semester-button')?.focus();
         return;
       }
+      if (target === 'settings') {
+        settingsButtonRef.current?.focus();
+        return;
+      }
       addButtonRef.current?.focus();
     }, 0);
+  };
+
+  const closeSettings = () => {
+    setShowSettings(false);
+    returnFocus('settings');
   };
 
   const closeForm = () => {
@@ -99,7 +110,7 @@ export default function Sidebar({
   };
 
   useEffect(() => {
-    if (!showForm && !deleteTarget) return;
+    if (!showForm && !deleteTarget && !showSettings) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Tab') {
         const panel = document.querySelector<HTMLElement>('.dialog-panel');
@@ -120,6 +131,7 @@ export default function Sidebar({
       }
       if (event.key === 'Escape') {
         if (showForm) closeForm();
+        if (showSettings) closeSettings();
         if (deleteTarget && !deleting) {
           setDeleteTarget(null);
           returnFocus();
@@ -128,7 +140,7 @@ export default function Sidebar({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [deleteTarget, deleting, showForm, saving]);
+  }, [deleteTarget, deleting, showForm, showSettings, saving]);
 
   const handleSave = async (input: SemesterInput) => {
     setSaving(true);
@@ -185,14 +197,23 @@ export default function Sidebar({
   return (
     <aside className="sidebar" aria-label="Semester navigation">
       <div className="brand">
-        <span className="brand-mark"><AppIcon name="flask" size={24} /></span>
+        <span className="brand-mark"><AppIcon name="flask" size={21} /></span>
         <div className="brand-copy">
           <p className="brand-title">Thesis Counter</p>
           <p className="brand-subtitle">Research Studio</p>
         </div>
+        <button
+          ref={settingsButtonRef}
+          className="icon-button icon-button-quiet"
+          type="button"
+          aria-label="Open settings"
+          title="Settings"
+          aria-haspopup="dialog"
+          onClick={() => setShowSettings(true)}
+        >
+          <AppIcon name="settings" size={17} />
+        </button>
       </div>
-
-      <ThemeSelector value={theme} onChange={onThemeChange} />
 
       <div className="sidebar-section">
         <div className="sidebar-section-header">
@@ -256,6 +277,14 @@ export default function Sidebar({
           New semester
         </button>
       </div>
+
+      {showSettings && (
+        <SettingsDialog
+          theme={theme}
+          onThemeChange={onThemeChange}
+          onClose={closeSettings}
+        />
+      )}
 
       {showForm && (
         <div
