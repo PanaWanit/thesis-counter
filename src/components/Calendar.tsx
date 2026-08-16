@@ -23,6 +23,7 @@ interface Props {
   onChange: (next: CalendarValue) => void;
   min?: string;
   max?: string;
+  onComplete?: () => void;
 }
 
 const WEEKDAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
@@ -31,7 +32,7 @@ function anchorDate(value: CalendarValue): string {
   return value.mode === 'single' ? value.date : value.start;
 }
 
-export default function Calendar({ value, onChange, min, max }: Props) {
+export default function Calendar({ value, onChange, min, max, onComplete }: Props) {
   const [focused, setFocused] = useState(() => anchorDate(value));
   const [pendingStart, setPendingStart] = useState<string | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -64,6 +65,7 @@ export default function Calendar({ value, onChange, min, max }: Props) {
 
     if (value.mode === 'single') {
       onChange({ mode: 'single', date });
+      onComplete?.();
       return;
     }
 
@@ -76,6 +78,7 @@ export default function Calendar({ value, onChange, min, max }: Props) {
     const [start, end] = date < pendingStart ? [date, pendingStart] : [pendingStart, date];
     setPendingStart(null);
     onChange({ mode: 'range', start, end });
+    onComplete?.();
   };
 
   // Keyboard navigation must pull DOM focus onto the newly focused day.

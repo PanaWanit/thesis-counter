@@ -58,13 +58,11 @@ export default function DateField({
           value={value}
           min={min}
           max={max}
-          onChange={(next) => {
-            onChange(next);
+          onChange={onChange}
+          onComplete={() => {
             // Single dates commit on the first click; a range needs a second click.
-            if (next.mode === 'single' || next.start !== next.end) {
-              setOpen(false);
-              triggerRef.current?.focus();
-            }
+            setOpen(false);
+            triggerRef.current?.focus();
           }}
         />
       </Popover>
