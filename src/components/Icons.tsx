@@ -6,6 +6,8 @@ export type IconName =
   | 'calendar'
   | 'categories'
   | 'check'
+  | 'chevronLeft'
+  | 'chevronRight'
   | 'clock'
   | 'close'
   | 'download'
@@ -37,6 +39,10 @@ function paths(name: IconName): ReactNode {
       return <><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></>;
     case 'check':
       return <path d="m5 12 4 4L19 6" />;
+    case 'chevronLeft':
+      return <path d="m15 5-7 7 7 7" />;
+    case 'chevronRight':
+      return <path d="m9 5 7 7-7 7" />;
     case 'clock':
       return <><circle cx="12" cy="12" r="8" /><path d="M12 8v5l3 2" /></>;
     case 'close':
