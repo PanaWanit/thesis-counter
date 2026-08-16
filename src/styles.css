@@ -2365,3 +2365,7 @@ textarea.control {
   color: var(--on-accent);
   font-weight: 750;
 }
+
+.time-slot[data-active="true"]:not([data-selected="true"]) {
+  background: var(--surface-inset);
+}
