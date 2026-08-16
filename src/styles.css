@@ -2398,6 +2398,11 @@ textarea.control {
   box-shadow: var(--shadow-card-soft);
 }
 
+.segmented-option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--focus-rgb), 0.45);
+}
+
 .duration-field {
   display: flex;
   flex-direction: column;
