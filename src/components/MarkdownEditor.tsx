@@ -17,6 +17,10 @@ interface ToolButton {
   title: string;
 }
 
+// Tallest the textarea may auto-grow to before it starts scrolling.
+// `.md-editor-input`'s max-height in src/styles.css must track this value.
+const MAX_EDITOR_HEIGHT = 320;
+
 const TOOLS: ToolButton[] = [
   { action: 'bold', label: 'B', title: 'Bold (Cmd/Ctrl+B)' },
   { action: 'italic', label: 'I', title: 'Italic (Cmd/Ctrl+I)' },
@@ -85,6 +89,8 @@ export default function MarkdownEditor({
 }: Props) {
   const [tab, setTab] = useState<'write' | 'preview'>('write');
   const panelId = `${id}-panel`;
+  const writeTabId = `${id}-tab-write`;
+  const previewTabId = `${id}-tab-preview`;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pendingSelection = useRef<{ start: number; end: number; value: string } | null>(null);
 
@@ -93,7 +99,7 @@ export default function MarkdownEditor({
     const node = textareaRef.current;
     if (!node || tab !== 'write') return;
     node.style.height = 'auto';
-    node.style.height = `${Math.min(node.scrollHeight, 320)}px`;
+    node.style.height = `${Math.min(node.scrollHeight, MAX_EDITOR_HEIGHT)}px`;
   }, [value, tab]);
 
   useEffect(() => {
@@ -131,6 +137,7 @@ export default function MarkdownEditor({
       <div className="md-editor-bar">
         <div className="md-editor-tabs" role="tablist" aria-label="Editor mode">
           <button
+            id={writeTabId}
             className="md-editor-tab"
             type="button"
             role="tab"
@@ -142,6 +149,7 @@ export default function MarkdownEditor({
             Write
           </button>
           <button
+            id={previewTabId}
             className="md-editor-tab"
             type="button"
             role="tab"
@@ -171,7 +179,12 @@ export default function MarkdownEditor({
         </div>
       </div>
 
-      <div className="md-editor-panel" role="tabpanel" id={panelId} aria-label="Note content">
+      <div
+        className="md-editor-panel"
+        role="tabpanel"
+        id={panelId}
+        aria-labelledby={tab === 'write' ? writeTabId : previewTabId}
+      >
         {tab === 'write' ? (
           <textarea
             ref={textareaRef}

@@ -1,3 +1,5 @@
+import { formatDateInput, getMonday } from './date.ts';
+
 export interface DayCell {
   date: string;
   day: number;
@@ -12,14 +14,10 @@ export const MONTH_NAMES = [
 const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const SHORT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function pad(value: number): string {
-  return value.toString().padStart(2, '0');
-}
-
-// `month` is 0-indexed, matching the Date constructor.
+// `month` is 0-indexed, matching the Date constructor, and out-of-range values
+// roll over the same way (month 12 -> January of the next year).
 export function toDateString(year: number, month: number, day: number): string {
-  const d = new Date(year, month, day);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return formatDateInput(new Date(year, month, day));
 }
 
 export function parseDateString(value: string): { year: number; month: number; day: number } {
@@ -33,14 +31,8 @@ function toLocalDate(value: string): Date {
   return new Date(year, month, day);
 }
 
-// Days since Monday: Monday 0 ... Sunday 6.
-function mondayIndex(date: Date): number {
-  return (date.getDay() + 6) % 7;
-}
-
 export function monthGrid(year: number, month: number): DayCell[] {
-  const first = new Date(year, month, 1);
-  const start = new Date(year, month, 1 - mondayIndex(first));
+  const start = getMonday(new Date(year, month, 1));
   const cells: DayCell[] = [];
 
   for (let index = 0; index < 42; index += 1) {
@@ -69,7 +61,7 @@ export function shiftMonth(date: string, months: number): string {
 }
 
 export function startOfWeek(date: string): string {
-  return shiftDate(date, -mondayIndex(toLocalDate(date)));
+  return formatDateInput(getMonday(toLocalDate(date)));
 }
 
 export function endOfWeek(date: string): string {

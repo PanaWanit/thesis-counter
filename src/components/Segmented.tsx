@@ -11,11 +11,12 @@ interface Props {
   value: string;
   onChange: (next: string) => void;
   label: string;
+  id?: string;
 }
 
 // ARIA radiogroup pattern with a roving tabindex: buttons carrying role="radio"
 // get no native key handling, so arrow/Home/End navigation is implemented here.
-export default function Segmented({ options, value, onChange, label }: Props) {
+export default function Segmented({ options, value, onChange, label, id }: Props) {
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const activeIndex = options.findIndex((option) => option.value === value);
@@ -53,7 +54,7 @@ export default function Segmented({ options, value, onChange, label }: Props) {
   };
 
   return (
-    <div className="segmented" role="radiogroup" aria-label={label}>
+    <div id={id} className="segmented" role="radiogroup" aria-label={label}>
       {options.map((option, index) => (
         <button
           key={option.value}

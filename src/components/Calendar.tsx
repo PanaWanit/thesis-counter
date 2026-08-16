@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   MONTH_NAMES,
   endOfWeek,
+  formatDateLabel,
   inRange,
   isSameDay,
   monthGrid,
@@ -69,9 +70,10 @@ export default function Calendar({ value, onChange, min, max, onComplete }: Prop
       return;
     }
 
+    // Arm the first endpoint without committing: an abandoned selection must
+    // leave the existing range intact, so `onChange` waits for the second click.
     if (pendingStart === null) {
       setPendingStart(date);
-      onChange({ mode: 'range', start: date, end: date });
       return;
     }
 
@@ -197,8 +199,9 @@ export default function Calendar({ value, onChange, min, max, onComplete }: Prop
                   data-outside={!cell.inMonth}
                   data-selected={isSelected(cell.date)}
                   data-within={isWithin(cell.date)}
+                  data-pending={cell.date === pendingStart}
                   aria-selected={isSelected(cell.date)}
-                  aria-label={cell.date}
+                  aria-label={formatDateLabel(cell.date)}
                   disabled={isDisabled(cell.date)}
                   tabIndex={focusedCell ? 0 : -1}
                   onClick={() => {

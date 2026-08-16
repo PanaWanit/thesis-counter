@@ -2,7 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Category, Session, Semester, SessionInput } from '../types';
 import { listSessions, createSession, deleteSession, updateSessionNote, listCategories } from '../db';
 import { formatDateInput } from '../lib/date';
-import { addMinutes, diffMinutes, formatTimeRange, validateManualEntry } from '../lib/time';
+import {
+  addMinutes,
+  diffMinutes,
+  formatDuration,
+  formatTimeRange,
+  validateManualEntry,
+} from '../lib/time';
 import { AppIcon } from './Icons';
 import NoteCard from './NoteCard';
 import MarkdownEditor from './MarkdownEditor';
@@ -199,6 +205,7 @@ export default function SessionsTab({ semester }: Props) {
           <div className="field field-mode">
             <span className="field-label">Enter as</span>
             <Segmented
+              id="session-mode"
               label="Session length entry mode"
               value={mode}
               onChange={handleModeChange}
@@ -209,7 +216,16 @@ export default function SessionsTab({ semester }: Props) {
             />
           </div>
 
-          <p className="entry-summary">{formatTimeRange(start, effectiveEnd)}</p>
+          {/*
+            In duration mode the entered minutes are the truth. Deriving the span
+            from the two clock times would read 0m whenever the duration crosses
+            midnight, because `diffMinutes` goes negative there.
+          */}
+          <p className="entry-summary">
+            {mode === 'end'
+              ? formatTimeRange(start, end)
+              : `${start} - ${effectiveEnd} · ${formatDuration(minutes)}`}
+          </p>
 
           <div className="field">
             <label htmlFor="session-category">Category</label>

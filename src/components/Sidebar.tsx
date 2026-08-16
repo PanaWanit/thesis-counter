@@ -113,6 +113,10 @@ export default function Sidebar({
     if (!showForm && !deleteTarget && !showSettings) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Tab') {
+        // Popovers opened from inside the dialog are portalled to document.body,
+        // so they are not DOM descendants of the panel. Treat them as inside the
+        // dialog and let the popover own its own focus handling.
+        if (document.activeElement?.closest('[data-popover-root]')) return;
         const panel = document.querySelector<HTMLElement>('.dialog-panel');
         const focusable = panel?.querySelectorAll<HTMLElement>(
           'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'

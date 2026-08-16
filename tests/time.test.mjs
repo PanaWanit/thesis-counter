@@ -90,6 +90,16 @@ test('validateManualEntry rejects a duration that would cross midnight', () => {
   assert.equal(validateManualEntry('duration', '09:00', '10:00', 60), null);
 });
 
+// DurationField clamps to 24 * 60 - 1, so its ceiling must be submittable from
+// 00:00. 1440 is the first value the midnight guard always rejects.
+test('validateManualEntry accepts the duration field ceiling from midnight', () => {
+  assert.equal(validateManualEntry('duration', '00:00', '10:00', 24 * 60 - 1), null);
+  assert.equal(
+    validateManualEntry('duration', '00:00', '10:00', 24 * 60),
+    'Session must end on the same day. Shorten the duration.'
+  );
+});
+
 test('validateManualEntry treats a malformed start as valid for the midnight guard', () => {
   assert.equal(validateManualEntry('duration', '99:99', '10:00', 60), null);
   assert.equal(validateManualEntry('duration', 'xx:xx', '10:00', 60), null);

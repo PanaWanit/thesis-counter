@@ -53,7 +53,12 @@ export default function DateField({
         <span className="date-field-label">{label(value)}</span>
       </button>
 
-      <Popover anchor={triggerRef} open={open} onClose={() => setOpen(false)}>
+      <Popover
+        anchor={triggerRef}
+        open={open}
+        onClose={() => setOpen(false)}
+        label={value.mode === 'single' ? 'Choose a date' : 'Choose a date range'}
+      >
         <Calendar
           value={value}
           min={min}

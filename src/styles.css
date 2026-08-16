@@ -2227,15 +2227,24 @@ textarea.control {
   background: var(--surface-inset);
 }
 
-.calendar-weekdays,
-.calendar-grid {
+.calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
 }
 
+/* Rows lay out their own 7 columns rather than the grid flattening them with
+   `display: contents`, which WebKit can drop from the accessibility tree. */
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .calendar-row {
-  display: contents;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
 }
 
 .calendar-weekdays span {
@@ -2283,6 +2292,12 @@ textarea.control {
   border-radius: 8px;
   color: var(--on-accent);
   font-weight: 750;
+}
+
+/* The first click of a range only arms an endpoint; outline it so the user can
+   see what they picked before the second click commits. */
+.calendar-day[data-pending="true"] {
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .calendar-day:disabled {
@@ -2536,8 +2551,12 @@ textarea.control {
   opacity: 0.4;
 }
 
-.md-editor-input {
+/* Must out-specify `textarea.control`, which otherwise reinstates the resize
+   grip and an 82px floor that fight the auto-grow effect.
+   max-height tracks MAX_EDITOR_HEIGHT in src/components/MarkdownEditor.tsx. */
+textarea.md-editor-input {
   overflow-y: auto;
+  min-height: 0;
   max-height: 320px;
   resize: none;
   line-height: 1.55;

@@ -123,7 +123,7 @@ export default function TimeField({ id, value, onChange, step = 5, slotStep = 15
         ▾
       </button>
 
-      <Popover anchor={wrapRef} open={open} onClose={() => setOpen(false)}>
+      <Popover anchor={wrapRef} open={open} onClose={() => setOpen(false)} label="Choose a time">
         <div className="time-slots" id={listboxId} ref={listRef} role="listbox" aria-label="Time options">
           {slots.map((slot, index) => (
             <button
@@ -133,7 +133,6 @@ export default function TimeField({ id, value, onChange, step = 5, slotStep = 15
               type="button"
               role="option"
               aria-selected={slot === value}
-              data-current={slot === nearestSlot}
               data-selected={slot === value}
               data-active={index === activeIndex}
               onClick={() => {
