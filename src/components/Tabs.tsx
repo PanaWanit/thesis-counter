@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Semester } from '../types';
 import TimerTab from './TimerTab';
 import SessionsTab from './SessionsTab';
-import StatsTab from './StatsTab';
+import StatsTab from './insights/StatsTab';
 import CategoryManager from './CategoryManager';
 import { AppIcon, type IconName } from './Icons';
 
