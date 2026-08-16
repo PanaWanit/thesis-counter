@@ -70,9 +70,17 @@ test('validateManualEntry rejects non-positive spans only', () => {
 });
 
 test('validateManualEntry rejects a duration that would cross midnight', () => {
-  assert.equal(validateManualEntry('duration', '23:00', '10:00', 60), null);
+  assert.equal(validateManualEntry('duration', '23:00', '10:00', 59), null);
+  assert.equal(
+    validateManualEntry('duration', '23:00', '10:00', 60),
+    'Session must end on the same day. Shorten the duration.'
+  );
   assert.equal(
     validateManualEntry('duration', '23:00', '10:00', 61),
+    'Session must end on the same day. Shorten the duration.'
+  );
+  assert.equal(
+    validateManualEntry('duration', '00:00', '10:00', 1440),
     'Session must end on the same day. Shorten the duration.'
   );
   assert.equal(
@@ -80,8 +88,9 @@ test('validateManualEntry rejects a duration that would cross midnight', () => {
     'Session must end on the same day. Shorten the duration.'
   );
   assert.equal(validateManualEntry('duration', '09:00', '10:00', 60), null);
-  assert.equal(
-    validateManualEntry('duration', '09:00', '10:00', 0),
-    'Duration must be longer than zero minutes.'
-  );
+});
+
+test('validateManualEntry treats a malformed start as valid for the midnight guard', () => {
+  assert.equal(validateManualEntry('duration', '99:99', '10:00', 60), null);
+  assert.equal(validateManualEntry('duration', 'xx:xx', '10:00', 60), null);
 });
