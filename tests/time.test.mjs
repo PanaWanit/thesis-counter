@@ -68,3 +68,20 @@ test('validateManualEntry rejects non-positive spans only', () => {
     'Duration must be longer than zero minutes.'
   );
 });
+
+test('validateManualEntry rejects a duration that would cross midnight', () => {
+  assert.equal(validateManualEntry('duration', '23:00', '10:00', 60), null);
+  assert.equal(
+    validateManualEntry('duration', '23:00', '10:00', 61),
+    'Session must end on the same day. Shorten the duration.'
+  );
+  assert.equal(
+    validateManualEntry('duration', '09:00', '10:00', 20 * 60),
+    'Session must end on the same day. Shorten the duration.'
+  );
+  assert.equal(validateManualEntry('duration', '09:00', '10:00', 60), null);
+  assert.equal(
+    validateManualEntry('duration', '09:00', '10:00', 0),
+    'Duration must be longer than zero minutes.'
+  );
+});

@@ -86,7 +86,12 @@ export function validateManualEntry(
   minutes: number
 ): string | null {
   if (mode === 'duration') {
-    return minutes > 0 ? null : 'Duration must be longer than zero minutes.';
+    if (minutes <= 0) return 'Duration must be longer than zero minutes.';
+    const startMinutes = toMinutes(start);
+    if (startMinutes !== null && startMinutes + minutes > 1440) {
+      return 'Session must end on the same day. Shorten the duration.';
+    }
+    return null;
   }
   return diffMinutes(start, end) > 0 ? null : 'End time must be later than start time.';
 }
