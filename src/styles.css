@@ -2175,3 +2175,13 @@ textarea.control {
     align-items: stretch;
   }
 }
+
+.popover {
+  position: fixed;
+  z-index: 90;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-dialog);
+}
