@@ -67,3 +67,29 @@ export interface CategoryBreakdown {
   total_hours: number;
   percent: number;
 }
+
+// The time span the insights page is currently reporting on.
+export type InsightsRange = 'week' | 'month' | 'semester' | 'all';
+
+export interface RangeTotals {
+  total_minutes: number;
+  total_hours: number;
+  session_count: number;
+  active_days: number;
+}
+
+export interface DailyTotal {
+  day: string; // YYYY-MM-DD, local
+  minutes: number;
+}
+
+export interface SemesterTotal {
+  semester_id: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  credits: number;
+  total_minutes: number;
+  total_hours: number;
+  session_count: number;
+}

@@ -1,5 +1,6 @@
 import Database from '@tauri-apps/plugin-sql';
-import { mondayWeekBounds } from './lib/date';
+import { weekBounds } from './lib/date';
+import type { DateBounds } from './lib/date';
 import type {
   Semester,
   SemesterInput,
@@ -9,6 +10,9 @@ import type {
   WeeklyStats,
   SemesterStats,
   CategoryBreakdown,
+  RangeTotals,
+  DailyTotal,
+  SemesterTotal,
 } from './types';
 
 const DB_NAME = 'sqlite:thesis.db';
@@ -100,7 +104,7 @@ export async function updateSessionNote(id: number, title: string, note: string)
 }
 
 export async function getWeeklyStats(semester: Semester): Promise<WeeklyStats> {
-  const { start, end } = mondayWeekBounds(new Date());
+  const { start, end } = weekBounds(new Date());
   const rows = await select<{ current_week_minutes: number }>(
     `SELECT COALESCE(SUM(duration_minutes), 0) AS current_week_minutes
      FROM sessions
@@ -140,7 +144,96 @@ export async function getSemesterStats(semester: Semester): Promise<SemesterStat
   };
 }
 
-export async function getCategoryBreakdown(semesterId: number): Promise<CategoryBreakdown[]> {
+// Conditions that narrow a session set to one semester and/or one time span.
+// A null semesterId means every semester; omitting bounds means all time.
+function sessionFilter(
+  alias: string,
+  semesterId: number | null,
+  bounds: DateBounds | null,
+  firstParam = 1
+): { clauses: string[]; params: unknown[] } {
+  const clauses: string[] = [];
+  const params: unknown[] = [];
+  let index = firstParam;
+  if (semesterId !== null) {
+    clauses.push(`${alias}.semester_id = $${index++}`);
+    params.push(semesterId);
+  }
+  if (bounds) {
+    clauses.push(`${alias}.started_at >= $${index++}`);
+    clauses.push(`${alias}.started_at <= $${index++}`);
+    params.push(bounds.start, bounds.end);
+  }
+  return { clauses, params };
+}
+
+export async function getRangeTotals(
+  semesterId: number | null,
+  bounds: DateBounds | null
+): Promise<RangeTotals> {
+  const { clauses, params } = sessionFilter('sessions', semesterId, bounds);
+  const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+  const rows = await select<{ total_minutes: number; session_count: number; active_days: number }>(
+    `SELECT COALESCE(SUM(duration_minutes), 0) AS total_minutes,
+            COUNT(*) AS session_count,
+            COUNT(DISTINCT date(started_at, 'localtime')) AS active_days
+     FROM sessions ${where}`,
+    params
+  );
+  const totalMinutes = rows[0]?.total_minutes ?? 0;
+  return {
+    total_minutes: totalMinutes,
+    total_hours: totalMinutes / 60,
+    session_count: rows[0]?.session_count ?? 0,
+    active_days: rows[0]?.active_days ?? 0,
+  };
+}
+
+// Minutes per local calendar day. Days without sessions are absent; callers
+// fill the gaps so charts keep an unbroken axis.
+export async function getDailyTotals(
+  semesterId: number | null,
+  bounds: DateBounds | null
+): Promise<DailyTotal[]> {
+  const { clauses, params } = sessionFilter('sessions', semesterId, bounds);
+  const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+  return select<DailyTotal>(
+    `SELECT date(started_at, 'localtime') AS day,
+            COALESCE(SUM(duration_minutes), 0) AS minutes
+     FROM sessions ${where}
+     GROUP BY day
+     ORDER BY day`,
+    params
+  );
+}
+
+export async function getAllSemesterTotals(): Promise<SemesterTotal[]> {
+  const rows = await select<{
+    semester_id: number;
+    name: string;
+    start_date: string;
+    end_date: string;
+    credits: number;
+    total_minutes: number;
+    session_count: number;
+  }>(
+    `SELECT sem.id AS semester_id, sem.name, sem.start_date, sem.end_date, sem.credits,
+            COALESCE(SUM(s.duration_minutes), 0) AS total_minutes,
+            COUNT(s.id) AS session_count
+     FROM semesters sem
+     LEFT JOIN sessions s ON s.semester_id = sem.id
+     GROUP BY sem.id
+     ORDER BY sem.start_date`
+  );
+  return rows.map((row) => ({ ...row, total_hours: row.total_minutes / 60 }));
+}
+
+export async function getCategoryBreakdown(
+  semesterId: number | null,
+  bounds: DateBounds | null = null
+): Promise<CategoryBreakdown[]> {
+  const { clauses, params } = sessionFilter('s', semesterId, bounds);
+  const joinExtra = clauses.length > 0 ? ` AND ${clauses.join(' AND ')}` : '';
   const rows = await select<{
     category_id: number;
     name: string;
@@ -149,9 +242,9 @@ export async function getCategoryBreakdown(semesterId: number): Promise<Category
   }>(
     `SELECT c.id AS category_id, c.name, c.color, COALESCE(SUM(s.duration_minutes), 0) AS total_minutes
      FROM categories c
-     LEFT JOIN sessions s ON s.category_id = c.id AND s.semester_id = $1
+     LEFT JOIN sessions s ON s.category_id = c.id${joinExtra}
      GROUP BY c.id`,
-    [semesterId]
+    params
   );
   const total = rows.reduce((sum, r) => sum + r.total_minutes, 0);
   return rows.map((r) => ({
@@ -173,4 +266,7 @@ export type {
   WeeklyStats,
   SemesterStats,
   CategoryBreakdown,
+  RangeTotals,
+  DailyTotal,
+  SemesterTotal,
 };
