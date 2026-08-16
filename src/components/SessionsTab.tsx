@@ -5,7 +5,7 @@ import { formatDateInput } from '../lib/date';
 import { addMinutes, diffMinutes, formatTimeRange, validateManualEntry } from '../lib/time';
 import { AppIcon } from './Icons';
 import NoteCard from './NoteCard';
-import MarkdownPreview from './MarkdownPreview';
+import MarkdownEditor from './MarkdownEditor';
 import DateField from './DateField';
 import TimeField from './TimeField';
 import DurationField from './DurationField';
@@ -236,13 +236,7 @@ export default function SessionsTab({ semester }: Props) {
           </div>
           <div className="field field-description">
             <label htmlFor="session-description">Description <span className="helper-text">(markdown supported)</span></label>
-            <textarea
-              id="session-description"
-              className="control"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              placeholder="What did you move forward?"
-            />
+            <MarkdownEditor id="session-description" value={note} onChange={setNote} />
           </div>
           <button className="button button-primary form-submit" type="submit" disabled={saving || categories.length === 0}>
             <AppIcon name="plus" size={18} />
@@ -256,11 +250,6 @@ export default function SessionsTab({ semester }: Props) {
             <span>{formError}</span>
           </div>
         )}
-
-        <div className="manual-preview">
-          <p className="field-label">Preview</p>
-          <MarkdownPreview markdown={note} />
-        </div>
       </section>
 
       <section className="panel history-panel" aria-labelledby="history-title">

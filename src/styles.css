@@ -1245,14 +1245,6 @@ textarea.control {
   align-self: end;
 }
 
-.manual-preview {
-  margin-top: 18px;
-}
-
-.manual-preview .field-label {
-  margin-bottom: 6px;
-}
-
 .note-cell {
   min-width: 0;
 }

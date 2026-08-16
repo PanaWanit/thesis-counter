@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Session } from '../types';
 import MarkdownPreview from './MarkdownPreview';
+import MarkdownEditor from './MarkdownEditor';
 import { AppIcon } from './Icons';
 
 interface Props {
@@ -124,17 +125,7 @@ export default function NoteCard({ session, onClose, onSave }: Props) {
               </div>
               <div className="field">
                 <label htmlFor="note-edit-description">Description <span className="helper-text">(markdown supported)</span></label>
-                <textarea
-                  id="note-edit-description"
-                  className="control"
-                  value={editNote}
-                  onChange={(event) => setEditNote(event.target.value)}
-                  placeholder="What did you move forward?"
-                />
-              </div>
-              <div className="field">
-                <p className="field-label">Preview</p>
-                <MarkdownPreview markdown={editNote} />
+                <MarkdownEditor id="note-edit-description" value={editNote} onChange={setEditNote} />
               </div>
             </div>
           ) : (
