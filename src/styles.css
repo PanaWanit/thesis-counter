@@ -2301,3 +2301,67 @@ textarea.control {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.time-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.time-field-input {
+  padding-right: 34px;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-field-caret {
+  position: absolute;
+  right: 6px;
+  display: flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.time-field-caret:hover {
+  background: var(--surface-inset);
+}
+
+.time-slots {
+  display: flex;
+  overflow-y: auto;
+  max-height: 220px;
+  flex-direction: column;
+  gap: 1px;
+  padding-right: 2px;
+}
+
+.time-slot {
+  padding: 7px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.time-slot:hover {
+  background: var(--surface-inset);
+}
+
+.time-slot[data-selected="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 750;
+}
