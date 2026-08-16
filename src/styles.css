@@ -2475,3 +2475,81 @@ textarea.control {
   background: var(--accent-soft);
   color: var(--accent-strong);
 }
+
+.md-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.md-editor-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.md-editor-tabs {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.md-editor-tab {
+  padding: 5px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ink-tertiary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.md-editor-tab[data-active="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+}
+
+.md-editor-tools {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.md-editor-tool {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.md-editor-tool:hover:not(:disabled) {
+  background: var(--surface-inset);
+  color: var(--ink);
+}
+
+.md-editor-tool:disabled {
+  opacity: 0.4;
+}
+
+.md-editor-input {
+  overflow-y: auto;
+  max-height: 320px;
+  resize: none;
+  line-height: 1.55;
+}
+
+.md-editor-preview {
+  min-height: 82px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface-inset);
+}
