@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { formatDateLabel } from '../lib/calendar';
 import Calendar, { type CalendarValue } from './Calendar';
 import Popover from './Popover';
@@ -34,6 +34,16 @@ export default function DateField({
 }: Props) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // The popover panel is portalled to the end of <body>, so Tab from the trigger
+  // no longer walks into the grid. Pull focus onto the calendar's focused day
+  // once the panel has mounted. Keyed on `open`, so it fires on the open
+  // transition only. Escape already hands focus back to the trigger.
+  useEffect(() => {
+    if (!open) return;
+    panelRef.current?.querySelector<HTMLButtonElement>('[data-focused="true"]')?.focus();
+  }, [open]);
 
   return (
     <>
@@ -59,17 +69,19 @@ export default function DateField({
         onClose={() => setOpen(false)}
         label={value.mode === 'single' ? 'Choose a date' : 'Choose a date range'}
       >
-        <Calendar
-          value={value}
-          min={min}
-          max={max}
-          onChange={onChange}
-          onComplete={() => {
-            // Single dates commit on the first click; a range needs a second click.
-            setOpen(false);
-            triggerRef.current?.focus();
-          }}
-        />
+        <div ref={panelRef}>
+          <Calendar
+            value={value}
+            min={min}
+            max={max}
+            onChange={onChange}
+            onComplete={() => {
+              // Single dates commit on the first click; a range needs a second click.
+              setOpen(false);
+              triggerRef.current?.focus();
+            }}
+          />
+        </div>
       </Popover>
     </>
   );

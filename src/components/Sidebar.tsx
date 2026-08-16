@@ -114,23 +114,30 @@ export default function Sidebar({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Tab') {
         // Popovers opened from inside the dialog are portalled to document.body,
-        // so they are not DOM descendants of the panel. Treat them as inside the
-        // dialog and let the popover own its own focus handling.
-        if (document.activeElement?.closest('[data-popover-root]')) return;
+        // so they are neither descendants of the panel nor adjacent to it in DOM
+        // order. Trap the dialog's controls and any open popover's as one ordered
+        // list, so focus cannot leak out through the seam between the two.
+        // `[tabindex="-1"]` is excluded because the calendar grid roves a single
+        // tabbable day across 42 buttons.
+        const selector =
+          'button:not([disabled]):not([tabindex="-1"]),' +
+          'input:not([disabled]):not([tabindex="-1"]),' +
+          'select:not([disabled]):not([tabindex="-1"]),' +
+          'textarea:not([disabled]):not([tabindex="-1"])';
+        const collect = (root: ParentNode) => Array.from(root.querySelectorAll<HTMLElement>(selector));
         const panel = document.querySelector<HTMLElement>('.dialog-panel');
-        const focusable = panel?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
-        );
-        if (!focusable || focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
+        const focusable = [
+          ...(panel ? collect(panel) : []),
+          ...Array.from(document.querySelectorAll<HTMLElement>('[data-popover-root]')).flatMap(collect),
+        ];
+        if (focusable.length === 0) return;
+        const index = focusable.indexOf(document.activeElement as HTMLElement);
+        if (index === -1) return;
+        // Same wrap-around as before — past the last lands on the first and before
+        // the first lands on the last — applied to the combined list.
+        event.preventDefault();
+        const step = event.shiftKey ? -1 : 1;
+        focusable[(index + step + focusable.length) % focusable.length].focus();
         return;
       }
       if (event.key === 'Escape') {
