@@ -2,7 +2,8 @@ function pad(n: number): string {
   return n.toString().padStart(2, '0');
 }
 
-// Format a local calendar date as YYYY-MM-DD for HTML date inputs.
+// Format a local calendar date as YYYY-MM-DD. This is the single place a Date
+// becomes a calendar-date string; src/lib/calendar.ts delegates to it.
 export function formatDateInput(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }

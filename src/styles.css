@@ -540,15 +540,15 @@ p {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 8px 24px;
+  gap: 10px;
+  padding: 0 4px 18px;
 }
 
 .brand-mark {
   display: grid;
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
   place-items: center;
   border-radius: 14px;
   background: var(--accent);
@@ -558,12 +558,20 @@ p {
 
 .brand-copy {
   min-width: 0;
+  flex: 1;
+}
+
+.brand-title,
+.brand-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-title {
   margin: 0;
   color: var(--ink);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 750;
   letter-spacing: -0.02em;
 }
@@ -575,28 +583,23 @@ p {
   font-weight: 600;
 }
 
-.theme-control {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 0 8px 20px;
-}
-
-.theme-label {
-  color: var(--ink-tertiary);
-  font-size: 11px;
-  font-weight: 750;
-}
-
-.theme-select {
-  min-height: 44px;
+.brand > .icon-button {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 9px;
 }
 
 .sidebar-section {
   display: flex;
   min-height: 0;
-  flex: 1;
+  /* Hug the list instead of stretching the card down the whole sidebar. */
+  flex: 0 1 auto;
   flex-direction: column;
+  padding: 14px 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
 }
 
 .sidebar-section-header,
@@ -632,7 +635,7 @@ p {
 }
 
 .sidebar-label {
-  padding-left: 8px;
+  padding-left: 4px;
 }
 
 .count-pill,
@@ -702,19 +705,25 @@ p {
   align-items: center;
   border-radius: 14px;
   color: var(--ink-secondary);
+  transition: background-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
 }
 
+.semester-item:hover:not(.selected) {
+  background: var(--surface-inset);
+}
+
+/* Inset ring only: an outer box-shadow bleeds a gray halo past the rounded corners. */
 .semester-item.selected {
-  background: var(--surface-raised);
+  background: var(--accent-soft);
   color: var(--ink);
-  box-shadow: 0 0 0 1px var(--line), var(--shadow-card-soft);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.34);
 }
 
 .semester-select {
   min-width: 0;
   padding: 10px 8px 10px 12px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 14px 0 0 14px;
   background: transparent;
   color: inherit;
   text-align: left;
@@ -827,6 +836,11 @@ p {
 .icon-button:hover:not(:disabled) {
   background: var(--danger-soft);
   color: var(--danger);
+}
+
+.icon-button-quiet:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .workspace-main {
@@ -1205,8 +1219,21 @@ textarea.control {
 
 .entry-form {
   display: grid;
-  grid-template-columns: 1.05fr 0.75fr 0.75fr 1fr;
+  grid-template-columns: 1.15fr 0.8fr 0.9fr 1fr;
   gap: 14px;
+}
+
+.entry-form .field-mode {
+  justify-content: flex-end;
+}
+
+.entry-form .entry-summary {
+  grid-column: 1 / -1;
+  margin: -4px 0 0;
+  color: var(--ink-secondary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
 }
 
 .entry-form .field-title,
@@ -1216,14 +1243,6 @@ textarea.control {
 
 .entry-form .form-submit {
   align-self: end;
-}
-
-.manual-preview {
-  margin-top: 18px;
-}
-
-.manual-preview .field-label {
-  margin-bottom: 6px;
 }
 
 .note-cell {
@@ -1638,6 +1657,98 @@ textarea.control {
 
 .dialog-panel.dialog-small {
   width: min(420px, 100%);
+}
+
+.dialog-panel.dialog-settings {
+  width: min(620px, 100%);
+}
+
+.settings-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.settings-card-header {
+  margin-bottom: 14px;
+}
+
+.settings-card-header h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.settings-card-header p {
+  margin: 0;
+  color: var(--ink-tertiary);
+  font-size: 12px;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.theme-card {
+  display: grid;
+  min-height: 52px;
+  grid-template-columns: auto minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-inset);
+  color: var(--ink-secondary);
+  text-align: left;
+  transition: background-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+
+.theme-card:hover {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.theme-card.selected {
+  background: var(--accent-soft);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.theme-swatch {
+  display: flex;
+  width: 38px;
+  height: 30px;
+  flex: 0 0 38px;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 3px;
+  padding: 5px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16);
+}
+
+.theme-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.theme-card-label {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.theme-card-check {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  color: var(--accent-strong);
 }
 
 @keyframes scrim-in {
@@ -2068,4 +2179,399 @@ textarea.control {
   .note-cell-button {
     align-items: stretch;
   }
+}
+
+.popover {
+  position: fixed;
+  z-index: 90;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-dialog);
+}
+
+.calendar {
+  display: flex;
+  width: 252px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.calendar-jump {
+  display: flex;
+  gap: 4px;
+}
+
+.calendar-select {
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.calendar-select:hover {
+  border-color: var(--line);
+  background: var(--surface-inset);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+/* Rows lay out their own 7 columns rather than the grid flattening them with
+   `display: contents`, which WebKit can drop from the accessibility tree. */
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calendar-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-weekdays span {
+  padding-bottom: 2px;
+  color: var(--ink-tertiary);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+}
+
+.calendar-day:hover:not(:disabled) {
+  background: var(--surface-inset);
+}
+
+.calendar-day:focus-visible {
+  box-shadow: 0 0 0 2px rgba(var(--focus-rgb), 0.45);
+}
+
+.calendar-day[data-outside="true"] {
+  color: var(--ink-tertiary);
+  opacity: 0.6;
+}
+
+.calendar-day[data-within="true"] {
+  background: var(--accent-soft);
+  border-radius: 0;
+}
+
+.calendar-day[data-selected="true"] {
+  background: var(--accent);
+  border-radius: 8px;
+  color: var(--on-accent);
+  font-weight: 750;
+}
+
+/* The first click of a range only arms an endpoint; outline it so the user can
+   see what they picked before the second click commits. */
+.calendar-day[data-pending="true"] {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* `.calendar-day` clears its outline, so box-shadow is the only focus indicator.
+   Arming an endpoint from the keyboard must show both, not just the outline. */
+.calendar-day[data-pending="true"]:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent), 0 0 0 2px rgba(var(--focus-rgb), 0.45);
+}
+
+.calendar-day:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+
+.date-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.date-field-label {
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.time-field-input {
+  padding-right: 34px;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-field-caret {
+  position: absolute;
+  right: 6px;
+  display: flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.time-field-caret:hover {
+  background: var(--surface-inset);
+}
+
+.time-slots {
+  display: flex;
+  overflow-y: auto;
+  max-height: 220px;
+  flex-direction: column;
+  gap: 1px;
+  padding-right: 2px;
+}
+
+.time-slot {
+  padding: 7px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.time-slot:hover {
+  background: var(--surface-inset);
+}
+
+.time-slot[data-selected="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 750;
+}
+
+.time-slot[data-active="true"]:not([data-selected="true"]) {
+  background: var(--surface-inset);
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface-inset);
+  gap: 3px;
+}
+
+.segmented-option {
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background-color 140ms var(--ease-out), color 140ms var(--ease-out);
+}
+
+.segmented-option[data-active="true"] {
+  background: var(--surface-raised);
+  color: var(--ink);
+  box-shadow: var(--shadow-card-soft);
+}
+
+.segmented-option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--focus-rgb), 0.45);
+}
+
+.duration-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.duration-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.duration-unit {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.duration-unit .control {
+  padding-right: 26px;
+  font-variant-numeric: tabular-nums;
+}
+
+.duration-unit span {
+  position: absolute;
+  right: 10px;
+  color: var(--ink-tertiary);
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.duration-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.duration-chip {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.duration-chip:hover {
+  border-color: var(--line-strong);
+}
+
+.duration-chip[data-active="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.md-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.md-editor-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.md-editor-tabs {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.md-editor-tab {
+  padding: 5px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ink-tertiary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.md-editor-tab[data-active="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+}
+
+.md-editor-tools {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.md-editor-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.md-editor-tool {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.md-editor-tool:hover:not(:disabled) {
+  background: var(--surface-inset);
+  color: var(--ink);
+}
+
+.md-editor-tool:disabled {
+  opacity: 0.4;
+}
+
+/* Must out-specify `textarea.control`, which otherwise reinstates the resize
+   grip and an 82px floor that fight the auto-grow effect.
+   max-height tracks MAX_EDITOR_HEIGHT in src/components/MarkdownEditor.tsx. */
+textarea.md-editor-input {
+  overflow-y: auto;
+  min-height: 0;
+  max-height: 320px;
+  resize: none;
+  line-height: 1.55;
+}
+
+.md-editor-preview {
+  min-height: 82px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface-inset);
 }

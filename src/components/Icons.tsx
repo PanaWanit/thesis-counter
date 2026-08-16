@@ -6,6 +6,8 @@ export type IconName =
   | 'calendar'
   | 'categories'
   | 'check'
+  | 'chevronLeft'
+  | 'chevronRight'
   | 'clock'
   | 'close'
   | 'download'
@@ -15,6 +17,7 @@ export type IconName =
   | 'play'
   | 'plus'
   | 'sessions'
+  | 'settings'
   | 'stop'
   | 'trash';
 
@@ -36,6 +39,10 @@ function paths(name: IconName): ReactNode {
       return <><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></>;
     case 'check':
       return <path d="m5 12 4 4L19 6" />;
+    case 'chevronLeft':
+      return <path d="m15 5-7 7 7 7" />;
+    case 'chevronRight':
+      return <path d="m9 5 7 7-7 7" />;
     case 'clock':
       return <><circle cx="12" cy="12" r="8" /><path d="M12 8v5l3 2" /></>;
     case 'close':
@@ -54,6 +61,8 @@ function paths(name: IconName): ReactNode {
       return <path d="m9 7 8 5-8 5Z" />;
     case 'sessions':
       return <><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h6" /></>;
+    case 'settings':
+      return <><circle cx="12" cy="12" r="3.2" /><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55V21a2 2 0 1 1-4 0v-.11A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.7 15a1.7 1.7 0 0 0-1.55-1.03H3a2 2 0 1 1 0-4h.11A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.03-1.55V3a2 2 0 1 1 4 0v.11A1.7 1.7 0 0 0 15 4.7a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.09A1.7 1.7 0 0 0 21 10.7h.09a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.55 1.03Z" /></>;
     case 'stop':
       return <rect x="7" y="7" width="10" height="10" rx="1.5" />;
     case 'trash':
