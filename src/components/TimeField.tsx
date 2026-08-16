@@ -36,7 +36,7 @@ export default function TimeField({ id, value, onChange, step = 5, slotStep = 15
   // Scroll the list so the active slot is visible while it's open.
   useEffect(() => {
     if (!open) return;
-    const target = listRef.current?.querySelector<HTMLButtonElement>(`#${id}-slot-${activeIndex}`);
+    const target = listRef.current?.querySelector<HTMLButtonElement>('[data-active="true"]');
     target?.scrollIntoView({ block: 'center' });
   }, [open, activeIndex]);
 
